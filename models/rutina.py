@@ -35,13 +35,13 @@ class Rutina(Base):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    """# --- Relaciones ---
+    # --- Relaciones ---
     usuario: Mapped["Usuario"] = relationship(  # noqa: F821
         "Usuario", back_populates="rutinas"
     )
     ejercicio: Mapped["Ejercicio"] = relationship(  # noqa: F821
         "Ejercicio", back_populates="rutinas"
-    )"""
+    )
 
     def __repr__(self) -> str:
         return f"<Rutina id={self.id} nombre={self.nombre} fecha={self.fecha_programada}>"

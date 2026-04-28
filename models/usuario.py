@@ -28,13 +28,13 @@ class Usuario(Base):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    """ --- Relaciones ---
+    #--- Relaciones ---
     rutinas: Mapped[list["Rutina"]] = relationship(  # noqa: F821
         "Rutina", back_populates="usuario", lazy="select"
     )
     registros_progreso: Mapped[list["RegistroProgreso"]] = relationship(  # noqa: F821
         "RegistroProgreso", back_populates="usuario", lazy="select"
     )
-    """
+    
     def __repr__(self) -> str:
         return f"<Usuario id={self.id} username={self.username}>"

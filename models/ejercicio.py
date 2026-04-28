@@ -31,10 +31,10 @@ class Ejercicio(Base):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    """# --- Relaciones ---
+    # --- Relaciones ---
     rutinas: Mapped[list["Rutina"]] = relationship(  # noqa: F821
         "Rutina", back_populates="ejercicio", lazy="select"
-    )"""
+    )
 
     def __repr__(self) -> str:
         return f"<Ejercicio id={self.id} nombre={self.nombre} tipo={self.tipo}>"
