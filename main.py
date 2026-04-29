@@ -34,7 +34,7 @@ app = FastAPI(
     """,
     version="1.0.0",
     contact={"name": "Fitness API Team"},
-    license_info={"name": "MIT"},
+    license_info={"name": "Alexis Loaiza 67001155"},
 )
 
 # ---------------------------------------------------------------------------
@@ -74,4 +74,3 @@ def root():
         "docs": "/docs",
         "redoc": "/redoc",
     }
-
