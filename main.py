@@ -3,6 +3,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from database import init_db
+from routes import usuarios_router, ejercicios_router, rutinas_router, registros_router
+from middleware.exception_handlers import (
+    validation_exception_handler,
+    sqlalchemy_exception_handler,
+    generic_exception_handler,
+)
+
 
 # ---------------------------------------------------------------------------
 # Instancia principal de la aplicación
@@ -29,3 +36,42 @@ app = FastAPI(
     contact={"name": "Fitness API Team"},
     license_info={"name": "MIT"},
 )
+
+# ---------------------------------------------------------------------------
+# Manejadores globales de excepciones (requisito 7)
+# ---------------------------------------------------------------------------
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(SQLAlchemyError, sqlalchemy_exception_handler)
+app.add_exception_handler(Exception, generic_exception_handler)
+
+# ---------------------------------------------------------------------------
+# Registro de routers
+# ---------------------------------------------------------------------------
+app.include_router(usuarios_router)
+app.include_router(ejercicios_router)
+app.include_router(rutinas_router)
+app.include_router(registros_router)
+
+
+# ---------------------------------------------------------------------------
+# Eventos de ciclo de vida
+# ---------------------------------------------------------------------------
+@app.on_event("startup")
+def on_startup():
+    """Crea las tablas en la BD si no existen al arrancar."""
+    init_db()
+    print("  Base de datos inicializada.")
+
+
+# ---------------------------------------------------------------------------
+# Endpoint raíz
+# ---------------------------------------------------------------------------
+@app.get("/", tags=["Root"], summary="Estado de la API")
+def root():
+    return {
+        "mensaje": " Fitness API funcionando correctamente",
+        "version": "1.0.0",
+        "docs": "/docs",
+        "redoc": "/redoc",
+    }
+
