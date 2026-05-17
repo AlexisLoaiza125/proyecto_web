@@ -3,6 +3,7 @@
 uvicorn main:app --reload --port 8000
 2. (Opcional) Cargar datos de prueba
 python seed.py
+holaquetal
 """
 
 
