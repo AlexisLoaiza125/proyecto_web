@@ -1,3 +1,10 @@
+"""
+1. Iniciar la API
+uvicorn main:app --reload --port 8000
+2. (Opcional) Cargar datos de prueba
+python seed.py
+"""
+
 
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
