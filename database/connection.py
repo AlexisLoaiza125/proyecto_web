@@ -6,15 +6,22 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL no está definida en las variables de entorno.")
 
-# Render a veces entrega URLs con "postgres://" en vez de "postgresql://"
-# SQLAlchemy solo acepta "postgresql://"
+# Log de diagnóstico — quitar después de resolver
+if not DATABASE_URL:
+    raise RuntimeError("❌ DATABASE_URL no está definida.")
+else:
+    # Solo muestra el inicio para no exponer la contraseña
+    print(f"✅ DATABASE_URL encontrada: {DATABASE_URL[:30]}...")
+
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,   # ← verifica la conexión antes de usarla
+    pool_recycle=300,     # ← recicla conexiones cada 5 min (importante en Supabase free)
+)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
