@@ -74,18 +74,30 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         "ultimos_usuarios": ultimos_usuarios, "rutinas_pendientes": rutinas_pendientes,
     })
 
-@app.get("/usuarios", response_class=HTMLResponse)
-def view_usuarios(
+@app.get("/ejercicios", response_class=HTMLResponse)
+def view_ejercicios(
     request: Request, db: Session = Depends(get_db),
-    q: Optional[str] = None, objetivo: Optional[str] = None,
-    solo_activos: int = 1,
+    q: Optional[str] = None, tipo: Optional[str] = None,
+    nivel: Optional[str] = None, grupo: Optional[str] = None,
 ):
-    activos = solo_activos == 1
-    usuarios = UsuarioService.listar(db, solo_activos=activos, q=q)
-    if objetivo: usuarios = [u for u in usuarios if u.objetivo == objetivo]
-    return templates.TemplateResponse("usuarios.html", {
-        "request": request, "active": "usuarios",
-        "usuarios": usuarios, "q": q, "objetivo": objetivo, "solo_activos": activos,
+    ejercicios = EjercicioService.filtrar(db, tipo=tipo, grupo=grupo, nivel=nivel)
+    if q: ejercicios = [e for e in ejercicios if q.lower() in e.nombre.lower()]
+
+    # Convertir a dict para que tojson funcione en el template
+    ejercicios_dict = [
+        {
+            "id": e.id, "nombre": e.nombre, "tipo": e.tipo,
+            "grupo_muscular": e.grupo_muscular, "nivel_dificultad": e.nivel_dificultad,
+            "descripcion": e.descripcion, "instrucciones": e.instrucciones,
+            "imagen_url": e.imagen_url, "video_url": e.video_url,
+            "is_active": e.is_active,
+        }
+        for e in ejercicios
+    ]
+
+    return templates.TemplateResponse("ejercicios.html", {
+        "request": request, "active": "ejercicios",
+        "ejercicios": ejercicios_dict, "q": q, "tipo": tipo, "nivel": nivel, "grupo": grupo,
     })
 
 @app.get("/usuarios/{usuario_id}", response_class=HTMLResponse)
@@ -106,9 +118,22 @@ def view_ejercicios(
 ):
     ejercicios = EjercicioService.filtrar(db, tipo=tipo, grupo=grupo, nivel=nivel)
     if q: ejercicios = [e for e in ejercicios if q.lower() in e.nombre.lower()]
+
+    # Convertir a dict para que tojson funcione en el template
+    ejercicios_dict = [
+        {
+            "id": e.id, "nombre": e.nombre, "tipo": e.tipo,
+            "grupo_muscular": e.grupo_muscular, "nivel_dificultad": e.nivel_dificultad,
+            "descripcion": e.descripcion, "instrucciones": e.instrucciones,
+            "imagen_url": e.imagen_url, "video_url": e.video_url,
+            "is_active": e.is_active,
+        }
+        for e in ejercicios
+    ]
+
     return templates.TemplateResponse("ejercicios.html", {
         "request": request, "active": "ejercicios",
-        "ejercicios": ejercicios, "q": q, "tipo": tipo, "nivel": nivel, "grupo": grupo,
+        "ejercicios": ejercicios_dict, "q": q, "tipo": tipo, "nivel": nivel, "grupo": grupo,
     })
 
 @app.get("/ejercicios/{ejercicio_id}", response_class=HTMLResponse)
