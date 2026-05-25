@@ -73,6 +73,39 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         "stats": stats, "chart_tipos": chart_tipos, "chart_objetivos": chart_objetivos,
         "ultimos_usuarios": ultimos_usuarios, "rutinas_pendientes": rutinas_pendientes,
     })
+@app.get("/usuarios", response_class=HTMLResponse)
+def view_usuarios(
+    request: Request, db: Session = Depends(get_db),
+    q: Optional[str] = None, objetivo: Optional[str] = None,
+    solo_activos: int = 1,
+):
+    activos = solo_activos == 1
+    usuarios = UsuarioService.listar(db, solo_activos=activos, q=q)
+    if objetivo: usuarios = [u for u in usuarios if u.objetivo == objetivo]
+    usuarios_dict = [
+        {
+            "id": u.id, "nombre": u.nombre, "email": u.email,
+            "username": u.username, "edad": u.edad, "peso_kg": u.peso_kg,
+            "altura_cm": u.altura_cm, "objetivo": u.objetivo,
+            "foto_perfil": u.foto_perfil, "is_active": u.is_active,
+        }
+        for u in usuarios
+    ]
+    return templates.TemplateResponse("usuarios.html", {
+        "request": request, "active": "usuarios",
+        "usuarios": usuarios_dict, "q": q, "objetivo": objetivo, "solo_activos": activos,
+    })
+
+@app.get("/usuarios/{usuario_id}", response_class=HTMLResponse)
+def view_usuario_detalle(request: Request, usuario_id: int, db: Session = Depends(get_db)):
+    u = UsuarioService.por_id(db, usuario_id)
+    rutinas = db.query(Rutina).filter(Rutina.usuario_id==usuario_id, Rutina.is_active==True).all()
+    registros = db.query(RegistroProgreso).filter(RegistroProgreso.usuario_id==usuario_id, RegistroProgreso.is_active==True).order_by(RegistroProgreso.fecha.desc()).limit(10).all()
+    return templates.TemplateResponse("usuario_detalle.html", {
+        "request": request, "active": "usuarios", "usuario": u,
+        "rutinas": rutinas, "registros": registros,
+    })
+
 
 @app.get("/ejercicios", response_class=HTMLResponse)
 def view_ejercicios(
@@ -98,16 +131,6 @@ def view_ejercicios(
     return templates.TemplateResponse("ejercicios.html", {
         "request": request, "active": "ejercicios",
         "ejercicios": ejercicios_dict, "q": q, "tipo": tipo, "nivel": nivel, "grupo": grupo,
-    })
-
-@app.get("/usuarios/{usuario_id}", response_class=HTMLResponse)
-def view_usuario_detalle(request: Request, usuario_id: int, db: Session = Depends(get_db)):
-    u = UsuarioService.por_id(db, usuario_id)
-    rutinas = db.query(Rutina).filter(Rutina.usuario_id==usuario_id, Rutina.is_active==True).all()
-    registros = db.query(RegistroProgreso).filter(RegistroProgreso.usuario_id==usuario_id, RegistroProgreso.is_active==True).order_by(RegistroProgreso.fecha.desc()).limit(10).all()
-    return templates.TemplateResponse("usuario_detalle.html", {
-        "request": request, "active": "usuarios", "usuario": u,
-        "rutinas": rutinas, "registros": registros,
     })
 
 @app.get("/ejercicios", response_class=HTMLResponse)
@@ -155,9 +178,23 @@ def view_rutinas(
     if completada == "1": comp = True
     elif completada == "0": comp = False
     rutinas = RutinaService.filtrar(db, usuario_id=usuario_id, fecha_inicio=fecha_inicio, fecha_fin=fecha_fin, completada=comp)
+
+    rutinas_dict = [
+        {
+            "id": r.id, "nombre": r.nombre,
+            "usuario_id": r.usuario_id, "ejercicio_id": r.ejercicio_id,
+            "series": r.series, "repeticiones": r.repeticiones,
+            "peso_kg": r.peso_kg, "duracion_min": r.duracion_min,
+            "fecha_programada": str(r.fecha_programada),
+            "completada": r.completada, "notas": r.notas,
+            "is_active": r.is_active,
+        }
+        for r in rutinas
+    ]
+
     return templates.TemplateResponse("rutinas.html", {
         "request": request, "active": "rutinas",
-        "rutinas": rutinas, "usuario_id": usuario_id,
+        "rutinas": rutinas_dict, "usuario_id": usuario_id,
         "fecha_inicio": fecha_inicio, "fecha_fin": fecha_fin, "completada": completada,
     })
 
