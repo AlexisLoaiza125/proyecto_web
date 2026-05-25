@@ -226,17 +226,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="results" id="searchResults"></div>
   </div>
 </nav>
-
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div style="max-width:1280px;margin:16px auto;padding:0 24px">
-      {% for cat,msg in messages %}
-        <div class="alert alert-{{ cat }}"><i class="fas fa-info-circle"></i> {{ msg }}</div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
-
 {% block content %}{% endblock %}
 
 <div id="toast-container"></div>
