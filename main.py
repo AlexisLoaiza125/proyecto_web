@@ -218,7 +218,13 @@ def api_crear_usuario(data: UsuarioCreate, db: Session=Depends(get_db)):
 
 @app.put("/api/usuarios/{usuario_id}")
 def api_actualizar_usuario(usuario_id: int, data: UsuarioUpdate, db: Session=Depends(get_db)):
-    return UsuarioService.actualizar(db, usuario_id, data)
+    u = UsuarioService.actualizar(db, usuario_id, data)
+    return {
+        "id": u.id, "nombre": u.nombre, "email": u.email,
+        "username": u.username, "edad": u.edad, "peso_kg": u.peso_kg,
+        "altura_cm": u.altura_cm, "objetivo": u.objetivo,
+        "foto_perfil": u.foto_perfil, "is_active": u.is_active,
+    }
 
 @app.delete("/api/usuarios/{usuario_id}")
 def api_eliminar_usuario(usuario_id: int, db: Session=Depends(get_db)):
@@ -247,7 +253,14 @@ def api_crear_ejercicio(data: EjercicioCreate, db: Session=Depends(get_db)):
 
 @app.put("/api/ejercicios/{ejercicio_id}")
 def api_actualizar_ejercicio(ejercicio_id: int, data: EjercicioUpdate, db: Session=Depends(get_db)):
-    return EjercicioService.actualizar(db, ejercicio_id, data)
+    e = EjercicioService.actualizar(db, ejercicio_id, data)
+    return {
+        "id": e.id, "nombre": e.nombre, "tipo": e.tipo,
+        "grupo_muscular": e.grupo_muscular, "nivel_dificultad": e.nivel_dificultad,
+        "descripcion": e.descripcion, "instrucciones": e.instrucciones,
+        "imagen_url": e.imagen_url, "video_url": e.video_url,
+        "is_active": e.is_active,
+    }
 
 @app.delete("/api/ejercicios/{ejercicio_id}")
 def api_eliminar_ejercicio(ejercicio_id: int, db: Session=Depends(get_db)):
