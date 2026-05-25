@@ -40,13 +40,7 @@ os.makedirs("static/uploads/ejercicios", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
-def sqlalchemy_to_json(obj):
-    if hasattr(obj, "__dict__"):
-        data = {k: v for k, v in obj.__dict__.items() if not k.startswith("_")}
-        return json.dumps(data, default=str)
-    return json.dumps(obj, default=str)
 
-templates.env.filters["tojson"] = sqlalchemy_to_json
 
 # Exception handlers
 app.add_exception_handler(RequestValidationError, validation_handler)
