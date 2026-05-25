@@ -3,6 +3,7 @@ main.py — Punto de entrada de Fitness API
 Sirve tanto HTML (Jinja2) como JSON (API REST bajo /api/)
 """
 import os
+import json
 from datetime import date, datetime
 from typing import Optional
 from collections import Counter
