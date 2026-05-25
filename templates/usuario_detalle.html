@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{{ usuario.nombre }} — FitnessAPI{% endblock %}
+{% block content %}
+<div class="container">
+  <div style="margin-bottom:20px">
+    <a href="/usuarios" style="color:var(--muted);text-decoration:none;font-size:13px"><i class="fas fa-arrow-left"></i> Volver a usuarios</a>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:24px;align-items:start">
+    <!-- Perfil -->
+    <div class="card">
+      <div class="card-body" style="display:flex;gap:20px;align-items:flex-start">
+        {% if usuario.foto_perfil %}
+          <img src="{{ usuario.foto_perfil }}" style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);flex-shrink:0" onerror="this.style.display='none'">
+        {% else %}
+          <div style="width:90px;height:90px;border-radius:50%;background:var(--accent2);display:flex;align-items:center;justify-content:center;font-size:32px;color:#fff;font-weight:700;flex-shrink:0">{{ usuario.nombre[0]|upper }}</div>
+        {% endif %}
+        <div style="flex:1">
+          <div style="font-size:22px;font-weight:700">{{ usuario.nombre }}</div>
+          <div style="color:var(--muted);font-family:var(--mono);font-size:13px;margin-top:2px">@{{ usuario.username }}</div>
+          <div style="color:var(--muted);font-size:13px;margin-top:4px">{{ usuario.email }}</div>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            {% if usuario.objetivo %}<span class="badge badge-get">{{ usuario.objetivo }}</span>{% endif %}
+            <span class="badge {{ 'badge-active' if usuario.is_active else 'badge-inactive' }}">{{ 'Activo' if usuario.is_active else 'Inactivo' }}</span>
+          </div>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding:16px 20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;text-align:center">
+        <div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--accent)">{{ usuario.peso_kg or '—' }}</div><div style="font-size:11px;color:var(--muted)">kg peso</div></div>
+        <div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--accent2)">{{ usuario.altura_cm or '—' }}</div><div style="font-size:11px;color:var(--muted)">cm altura</div></div>
+        <div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--accent3)">{{ usuario.edad or '—' }}</div><div style="font-size:11px;color:var(--muted)">años</div></div>
+      </div>
+    </div>
+
+    <!-- Rutinas del usuario -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Rutinas programadas</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nombre</th><th>Fecha</th><th>Estado</th></tr></thead>
+          <tbody>
+          {% for r in rutinas %}
+          <tr>
+            <td>{{ r.nombre }}</td>
+            <td style="font-family:var(--mono);font-size:12px">{{ r.fecha_programada }}</td>
+            <td>{% if r.completada %}<span class="badge badge-active">✓</span>{% else %}<span class="badge badge-inactive">Pendiente</span>{% endif %}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3"><div class="empty-state" style="padding:20px"><div class="icon">📋</div>Sin rutinas</div></td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Últimos registros de progreso -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Últimos registros de progreso</span>
+      <a href="/progreso?usuario_id={{ usuario.id }}" class="btn btn-secondary btn-sm">Ver historial completo</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Fecha</th><th>Peso</th><th>Calorías</th><th>Proteínas</th><th>Energía</th><th>Notas</th></tr></thead>
+        <tbody>
+        {% for rp in registros %}
+        <tr>
+          <td style="font-family:var(--mono);font-size:12px">{{ rp.fecha }}</td>
+          <td>{{ rp.peso_kg or '—' }} kg</td>
+          <td>{{ rp.calorias_consumidas or '—' }}</td>
+          <td>{{ rp.proteinas_g or '—' }} g</td>
+          <td>{% if rp.nivel_energia %}<span style="color:var(--accent3)">⚡ {{ rp.nivel_energia }}/10</span>{% else %}—{% endif %}</td>
+          <td style="font-size:12px;color:var(--muted)">{{ rp.notas or '—' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6"><div class="empty-state" style="padding:20px"><div class="icon">📊</div>Sin registros</div></td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

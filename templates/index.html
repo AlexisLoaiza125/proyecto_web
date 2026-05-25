@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — FitnessAPI{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <h1>📊 Dashboard</h1>
+    <p>Resumen general del sistema · Actualizado en tiempo real</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid-4" style="margin-bottom:24px">
+    <div class="stat-card c1">
+      <div class="stat-icon">👤</div>
+      <div class="stat-val">{{ stats.usuarios }}</div>
+      <div class="stat-label">Usuarios activos</div>
+    </div>
+    <div class="stat-card c2">
+      <div class="stat-icon">🏋️</div>
+      <div class="stat-val">{{ stats.ejercicios }}</div>
+      <div class="stat-label">Ejercicios en catálogo</div>
+    </div>
+    <div class="stat-card c3">
+      <div class="stat-icon">📋</div>
+      <div class="stat-val">{{ stats.rutinas }}</div>
+      <div class="stat-label">Rutinas programadas</div>
+    </div>
+    <div class="stat-card c4">
+      <div class="stat-icon">📈</div>
+      <div class="stat-val">{{ stats.registros }}</div>
+      <div class="stat-label">Registros de progreso</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <!-- Ejercicios por tipo -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Ejercicios por tipo</span></div>
+      <div class="card-body" style="position:relative;height:260px">
+        <canvas id="chartTipos"></canvas>
+      </div>
+    </div>
+    <!-- Objetivos de usuarios -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Objetivos de usuarios</span></div>
+      <div class="card-body" style="position:relative;height:260px">
+        <canvas id="chartObjetivos"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Últimos usuarios -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Últimos usuarios</span>
+        <a href="/usuarios" class="btn btn-secondary btn-sm">Ver todos</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Usuario</th><th>Objetivo</th><th>Estado</th></tr></thead>
+          <tbody>
+          {% for u in ultimos_usuarios %}
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px">
+                {% if u.foto_perfil %}
+                  <img src="{{ u.foto_perfil }}" class="avatar" onerror="this.style.display='none'">
+                {% else %}
+                  <div class="avatar">{{ u.nombre[0] }}</div>
+                {% endif %}
+                <div>
+                  <div style="font-weight:500">{{ u.nombre }}</div>
+                  <div style="font-size:11px;color:var(--muted)">@{{ u.username }}</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-get">{{ u.objetivo or '—' }}</span></td>
+            <td><span class="badge {{ 'badge-active' if u.is_active else 'badge-inactive' }}">{{ 'Activo' if u.is_active else 'Inactivo' }}</span></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" class="empty-state">Sin usuarios</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Rutinas pendientes -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Rutinas pendientes</span>
+        <a href="/rutinas" class="btn btn-secondary btn-sm">Ver todas</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nombre</th><th>Fecha</th><th>Estado</th></tr></thead>
+          <tbody>
+          {% for r in rutinas_pendientes %}
+          <tr>
+            <td>{{ r.nombre }}</td>
+            <td style="font-family:var(--mono);font-size:12px">{{ r.fecha_programada }}</td>
+            <td>{% if r.completada %}<span class="badge badge-active">✓ Lista</span>{% else %}<span class="badge badge-inactive">Pendiente</span>{% endif %}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3"><div class="empty-state"><div class="icon">📋</div>Sin rutinas</div></td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const tipos = {{ chart_tipos | tojson }};
+const objetivos = {{ chart_objetivos | tojson }};
+const COLORS = ['#22d3a5','#6366f1','#f59e0b','#ef4444','#a78bfa','#f472b6'];
+
+new Chart(document.getElementById('chartTipos'), {
+  type:'doughnut',
+  data:{ labels: Object.keys(tipos), datasets:[{ data: Object.values(tipos), backgroundColor: COLORS, borderWidth:0 }] },
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'right', labels:{ color:'#94a3b8', font:{size:12} } } } }
+});
+
+new Chart(document.getElementById('chartObjetivos'), {
+  type:'bar',
+  data:{ labels: Object.keys(objetivos), datasets:[{ label:'Usuarios', data: Object.values(objetivos), backgroundColor: COLORS, borderRadius:6 }] },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false} },
+    scales:{ x:{ ticks:{color:'#64748b'}, grid:{color:'rgba(42,48,69,.5)'} }, y:{ ticks:{color:'#64748b'}, grid:{color:'rgba(42,48,69,.5)'} } }
+  }
+});
+</script>
+{% endblock %}

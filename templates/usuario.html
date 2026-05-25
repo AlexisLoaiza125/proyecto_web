@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% block title %}Usuarios — FitnessAPI{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div>
+      <h1>👤 Usuarios</h1>
+      <p>Gestión de atletas registrados en el sistema</p>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('modal-crear')">
+      <i class="fas fa-plus"></i> Nuevo usuario
+    </button>
+  </div>
+
+  <!-- Filtros inline -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-body" style="padding:14px 20px">
+      <form method="get" action="/usuarios" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+        <div class="form-group" style="min-width:200px">
+          <label>Buscar</label>
+          <input name="q" value="{{ q or '' }}" placeholder="Nombre o username...">
+        </div>
+        <div class="form-group" style="min-width:160px">
+          <label>Objetivo</label>
+          <select name="objetivo">
+            <option value="">Todos</option>
+            <option value="ganar_musculo" {% if objetivo=='ganar_musculo' %}selected{% endif %}>Ganar músculo</option>
+            <option value="perder_peso"   {% if objetivo=='perder_peso'   %}selected{% endif %}>Perder peso</option>
+            <option value="mantenimiento" {% if objetivo=='mantenimiento' %}selected{% endif %}>Mantenimiento</option>
+            <option value="resistencia"   {% if objetivo=='resistencia'   %}selected{% endif %}>Resistencia</option>
+          </select>
+        </div>
+        <div class="form-group" style="min-width:120px">
+          <label>Estado</label>
+          <select name="solo_activos">
+            <option value="1" {% if solo_activos %}selected{% endif %}>Solo activos</option>
+            <option value="0" {% if not solo_activos %}selected{% endif %}>Todos</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-sm" type="submit"><i class="fas fa-search"></i> Filtrar</button>
+        <a href="/usuarios" class="btn btn-secondary btn-sm">Limpiar</a>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">{{ usuarios|length }} resultado(s)</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Usuario</th><th>Email</th><th>Objetivo</th><th>Peso/Altura</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>
+        {% for u in usuarios %}
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              {% if u.foto_perfil %}
+                <img src="{{ u.foto_perfil }}" class="avatar" onerror="this.src=''; this.textContent='{{ u.nombre[0] }}'">
+              {% else %}
+                <div class="avatar" style="background:var(--accent2);color:#fff">{{ u.nombre[0]|upper }}</div>
+              {% endif %}
+              <div>
+                <div style="font-weight:600">{{ u.nombre }}</div>
+                <div style="font-size:11px;color:var(--muted)">@{{ u.username }}</div>
+              </div>
+            </div>
+          </td>
+          <td style="color:var(--muted);font-size:12px">{{ u.email }}</td>
+          <td>{% if u.objetivo %}<span class="badge badge-get">{{ u.objetivo }}</span>{% else %}—{% endif %}</td>
+          <td style="font-size:12px">{{ u.peso_kg or '—' }} kg / {{ u.altura_cm or '—' }} cm</td>
+          <td><span class="badge {{ 'badge-active' if u.is_active else 'badge-inactive' }}">{{ 'Activo' if u.is_active else 'Inactivo' }}</span></td>
+          <td>
+            <div style="display:flex;gap:6px">
+              <a href="/usuarios/{{ u.id }}" class="btn btn-secondary btn-icon btn-sm" title="Ver detalle"><i class="fas fa-eye"></i></a>
+              <button class="btn btn-secondary btn-icon btn-sm" onclick="editarUsuario({{ u | tojson }})" title="Editar"><i class="fas fa-pen"></i></button>
+              {% if u.is_active %}
+              <button class="btn btn-danger btn-icon btn-sm" onclick="confirmDelete('/api/usuarios/{{ u.id }}','{{ u.nombre }}')" title="Desactivar"><i class="fas fa-trash"></i></button>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6"><div class="empty-state"><div class="icon">👤</div>No se encontraron usuarios</div></td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CREAR -->
+<div class="modal-overlay" id="modal-crear">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Nuevo usuario</span>
+      <button class="modal-close" onclick="closeModal('modal-crear')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="form-crear-usuario" onsubmit="submitCrearUsuario(event)">
+      <div class="modal-body">
+        <div id="alert-crear"></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nombre completo *</label>
+            <input id="c-nombre" required placeholder="Carlos Mendez">
+            <span class="field-error">El nombre es obligatorio</span>
+          </div>
+          <div class="form-group">
+            <label>Username *</label>
+            <input id="c-username" required placeholder="cmendez" pattern="[a-zA-Z0-9_]{3,50}">
+            <span class="field-error">Mínimo 3 caracteres, solo letras/números</span>
+          </div>
+          <div class="form-group full">
+            <label>Email *</label>
+            <input id="c-email" type="email" required placeholder="carlos@gym.com">
+            <span class="field-error">Email inválido</span>
+          </div>
+          <div class="form-group">
+            <label>Edad</label>
+            <input id="c-edad" type="number" min="10" max="120" placeholder="28">
+          </div>
+          <div class="form-group">
+            <label>Peso (kg)</label>
+            <input id="c-peso" type="number" step="0.1" min="0" placeholder="75.5">
+          </div>
+          <div class="form-group">
+            <label>Altura (cm)</label>
+            <input id="c-altura" type="number" step="0.1" min="0" placeholder="178">
+          </div>
+          <div class="form-group">
+            <label>Objetivo fitness</label>
+            <select id="c-objetivo">
+              <option value="">— Sin especificar —</option>
+              <option value="ganar_musculo">Ganar músculo</option>
+              <option value="perder_peso">Perder peso</option>
+              <option value="mantenimiento">Mantenimiento</option>
+              <option value="resistencia">Resistencia</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>URL foto de perfil (multimedia)</label>
+            <input id="c-foto" placeholder="https://..." oninput="previewImg('c-foto','c-foto-preview')">
+            <img id="c-foto-preview" class="img-preview" alt="preview foto">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-crear')">Cancelar</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div class="modal-overlay" id="modal-editar">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Editar usuario</span>
+      <button class="modal-close" onclick="closeModal('modal-editar')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="form-editar-usuario" onsubmit="submitEditarUsuario(event)">
+      <div class="modal-body">
+        <div id="alert-editar"></div>
+        <input type="hidden" id="e-id">
+        <div class="form-grid">
+          <div class="form-group full"><label>Nombre</label><input id="e-nombre" required></div>
+          <div class="form-group"><label>Edad</label><input id="e-edad" type="number" min="10" max="120"></div>
+          <div class="form-group"><label>Peso (kg)</label><input id="e-peso" type="number" step="0.1"></div>
+          <div class="form-group"><label>Altura (cm)</label><input id="e-altura" type="number" step="0.1"></div>
+          <div class="form-group">
+            <label>Objetivo</label>
+            <select id="e-objetivo">
+              <option value="">— Sin especificar —</option>
+              <option value="ganar_musculo">Ganar músculo</option>
+              <option value="perder_peso">Perder peso</option>
+              <option value="mantenimiento">Mantenimiento</option>
+              <option value="resistencia">Resistencia</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>URL foto de perfil</label>
+            <input id="e-foto" placeholder="https://..." oninput="previewImg('e-foto','e-foto-preview')">
+            <img id="e-foto-preview" class="img-preview" alt="preview">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-editar')">Cancelar</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Actualizar</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+async function submitCrearUsuario(e){
+  e.preventDefault();
+  if(!validateRequired('form-crear-usuario')) return;
+  const body = {
+    nombre: document.getElementById('c-nombre').value,
+    email: document.getElementById('c-email').value,
+    username: document.getElementById('c-username').value,
+  };
+  const edad=document.getElementById('c-edad').value; if(edad) body.edad=+edad;
+  const peso=document.getElementById('c-peso').value; if(peso) body.peso_kg=+peso;
+  const alt=document.getElementById('c-altura').value; if(alt) body.altura_cm=+alt;
+  const obj=document.getElementById('c-objetivo').value; if(obj) body.objetivo=obj;
+  const foto=document.getElementById('c-foto').value; if(foto) body.foto_perfil=foto;
+
+  const r = await fetch('/api/usuarios/', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  const d = await r.json();
+  if(r.ok){ toast('Usuario creado correctamente'); setTimeout(()=>location.reload(), 900); }
+  else {
+    const alert=document.getElementById('alert-crear');
+    alert.innerHTML=`<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${d.detail||'Error al crear usuario'}</div>`;
+  }
+}
+
+function editarUsuario(u){
+  document.getElementById('e-id').value = u.id;
+  document.getElementById('e-nombre').value = u.nombre || '';
+  document.getElementById('e-edad').value = u.edad || '';
+  document.getElementById('e-peso').value = u.peso_kg || '';
+  document.getElementById('e-altura').value = u.altura_cm || '';
+  document.getElementById('e-objetivo').value = u.objetivo || '';
+  document.getElementById('e-foto').value = u.foto_perfil || '';
+  const prev = document.getElementById('e-foto-preview');
+  if(u.foto_perfil){ prev.src=u.foto_perfil; prev.classList.add('show'); } else prev.classList.remove('show');
+  document.getElementById('alert-editar').innerHTML='';
+  openModal('modal-editar');
+}
+
+async function submitEditarUsuario(e){
+  e.preventDefault();
+  const id = document.getElementById('e-id').value;
+  const body={};
+  const nom=document.getElementById('e-nombre').value; if(nom) body.nombre=nom;
+  const edad=document.getElementById('e-edad').value; if(edad) body.edad=+edad;
+  const peso=document.getElementById('e-peso').value; if(peso) body.peso_kg=+peso;
+  const alt=document.getElementById('e-altura').value; if(alt) body.altura_cm=+alt;
+  const obj=document.getElementById('e-objetivo').value; if(obj) body.objetivo=obj;
+  const foto=document.getElementById('e-foto').value; body.foto_perfil=foto||null;
+
+  const r = await fetch(`/api/usuarios/${id}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  const d = await r.json();
+  if(r.ok){ toast('Usuario actualizado'); setTimeout(()=>location.reload(), 900); }
+  else {
+    document.getElementById('alert-editar').innerHTML=`<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${d.detail||'Error'}</div>`;
+  }
+}
+</script>
+{% endblock %}

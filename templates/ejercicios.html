@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block title %}Ejercicios — FitnessAPI{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div><h1>🏋️ Ejercicios</h1><p>Catálogo de ejercicios con multimedia</p></div>
+    <button class="btn btn-primary" onclick="openModal('modal-crear-ej')"><i class="fas fa-plus"></i> Nuevo ejercicio</button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-body" style="padding:14px 20px">
+      <form method="get" action="/ejercicios" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+        <div class="form-group" style="min-width:200px">
+          <label>Buscar por nombre</label>
+          <input name="q" value="{{ q or '' }}" placeholder="Press, sentadilla...">
+        </div>
+        <div class="form-group" style="min-width:140px">
+          <label>Tipo</label>
+          <select name="tipo">
+            <option value="">Todos</option>
+            {% for t in ['fuerza','cardio','flexibilidad','hiit','funcional'] %}
+            <option value="{{ t }}" {% if tipo==t %}selected{% endif %}>{{ t|capitalize }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group" style="min-width:140px">
+          <label>Nivel</label>
+          <select name="nivel">
+            <option value="">Todos</option>
+            {% for n in ['principiante','intermedio','avanzado'] %}
+            <option value="{{ n }}" {% if nivel==n %}selected{% endif %}>{{ n|capitalize }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group" style="min-width:140px">
+          <label>Grupo muscular</label>
+          <select name="grupo">
+            <option value="">Todos</option>
+            {% for g in ['pecho','espalda','piernas','hombros','biceps','triceps','core','gluteos','full_body'] %}
+            <option value="{{ g }}" {% if grupo==g %}selected{% endif %}>{{ g|capitalize }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button class="btn btn-primary btn-sm" type="submit"><i class="fas fa-search"></i> Filtrar</button>
+        <a href="/ejercicios" class="btn btn-secondary btn-sm">Limpiar</a>
+      </form>
+    </div>
+  </div>
+
+  <!-- Cards con multimedia -->
+  {% if ejercicios %}
+  <div class="grid-3">
+    {% for e in ejercicios %}
+    <div class="ex-card">
+      {% if e.imagen_url %}
+        <img src="{{ e.imagen_url }}" alt="{{ e.nombre }}" onerror="this.src=''; this.style.display='none'">
+      {% else %}
+        <div style="height:160px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:40px;opacity:.3">🏋️</div>
+      {% endif %}
+      <div class="ex-card-body">
+        <div class="ex-card-title">{{ e.nombre }}</div>
+        <div class="ex-card-meta">
+          <span class="badge tipo-{{ e.tipo }}">{{ e.tipo }}</span>
+          {% if e.grupo_muscular %}<span class="badge badge-inactive">{{ e.grupo_muscular }}</span>{% endif %}
+          {% if e.nivel_dificultad %}<span class="badge badge-get">{{ e.nivel_dificultad }}</span>{% endif %}
+        </div>
+        {% if e.descripcion %}
+        <div class="ex-card-desc">{{ e.descripcion[:100] }}{% if e.descripcion|length > 100 %}...{% endif %}</div>
+        {% endif %}
+        {% if e.video_url %}
+        <div style="margin-top:8px">
+          <a href="{{ e.video_url }}" target="_blank" class="btn btn-secondary btn-sm"><i class="fas fa-play"></i> Ver video</a>
+        </div>
+        {% endif %}
+        <div class="ex-card-actions">
+          <a href="/ejercicios/{{ e.id }}" class="btn btn-secondary btn-sm"><i class="fas fa-eye"></i></a>
+          <button class="btn btn-secondary btn-sm" onclick="editarEjercicio({{ e | tojson }})"><i class="fas fa-pen"></i></button>
+          {% if e.is_active %}
+          <button class="btn btn-danger btn-sm" onclick="confirmDelete('/api/ejercicios/{{ e.id }}','{{ e.nombre }}')"><i class="fas fa-trash"></i></button>
+          {% else %}
+          <span class="badge badge-inactive" style="align-self:center">Inactivo</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state card"><div class="card-body"><div class="icon">🏋️</div>No hay ejercicios que coincidan con los filtros</div></div>
+  {% endif %}
+</div>
+
+<!-- MODAL CREAR EJERCICIO -->
+<div class="modal-overlay" id="modal-crear-ej">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Nuevo ejercicio</span>
+      <button class="modal-close" onclick="closeModal('modal-crear-ej')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="form-crear-ej" onsubmit="submitCrearEjercicio(event)">
+      <div class="modal-body">
+        <div id="alert-crear-ej"></div>
+        <div class="form-grid">
+          <div class="form-group full"><label>Nombre *</label><input id="ej-nombre" required placeholder="Press de Banca"><span class="field-error">Obligatorio</span></div>
+          <div class="form-group">
+            <label>Tipo *</label>
+            <select id="ej-tipo" required>
+              <option value="fuerza">Fuerza</option><option value="cardio">Cardio</option>
+              <option value="flexibilidad">Flexibilidad</option><option value="hiit">HIIT</option>
+              <option value="funcional">Funcional</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Grupo muscular</label>
+            <select id="ej-grupo">
+              <option value="">— Ninguno —</option>
+              {% for g in ['pecho','espalda','piernas','hombros','biceps','triceps','core','gluteos','full_body','cardio'] %}
+              <option value="{{ g }}">{{ g|capitalize }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Nivel dificultad</label>
+            <select id="ej-nivel">
+              <option value="principiante">Principiante</option>
+              <option value="intermedio" selected>Intermedio</option>
+              <option value="avanzado">Avanzado</option>
+            </select>
+          </div>
+          <div class="form-group full"><label>Descripción</label><textarea id="ej-desc" placeholder="¿En qué consiste el ejercicio?"></textarea></div>
+          <div class="form-group full"><label>Instrucciones</label><textarea id="ej-instrucciones" placeholder="Paso a paso..."></textarea></div>
+          <div class="form-group full">
+            <label>🖼️ URL de imagen (multimedia)</label>
+            <input id="ej-imagen" placeholder="https://imagen.com/ejercicio.jpg" oninput="previewImg('ej-imagen','ej-img-preview')">
+            <img id="ej-img-preview" class="img-preview" alt="preview imagen ejercicio">
+          </div>
+          <div class="form-group full">
+            <label>🎥 URL de video (YouTube, multimedia)</label>
+            <input id="ej-video" placeholder="https://youtube.com/watch?v=...">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-crear-ej')">Cancelar</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL EDITAR EJERCICIO -->
+<div class="modal-overlay" id="modal-editar-ej">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Editar ejercicio</span>
+      <button class="modal-close" onclick="closeModal('modal-editar-ej')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="form-editar-ej" onsubmit="submitEditarEjercicio(event)">
+      <div class="modal-body">
+        <div id="alert-editar-ej"></div>
+        <input type="hidden" id="ee-id">
+        <div class="form-grid">
+          <div class="form-group full"><label>Nombre *</label><input id="ee-nombre" required></div>
+          <div class="form-group">
+            <label>Tipo</label>
+            <select id="ee-tipo">
+              <option value="fuerza">Fuerza</option><option value="cardio">Cardio</option>
+              <option value="flexibilidad">Flexibilidad</option><option value="hiit">HIIT</option>
+              <option value="funcional">Funcional</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Nivel</label>
+            <select id="ee-nivel">
+              <option value="principiante">Principiante</option>
+              <option value="intermedio">Intermedio</option>
+              <option value="avanzado">Avanzado</option>
+            </select>
+          </div>
+          <div class="form-group full"><label>Descripción</label><textarea id="ee-desc"></textarea></div>
+          <div class="form-group full">
+            <label>🖼️ URL imagen</label>
+            <input id="ee-imagen" oninput="previewImg('ee-imagen','ee-img-preview')">
+            <img id="ee-img-preview" class="img-preview" alt="preview">
+          </div>
+          <div class="form-group full"><label>🎥 URL video</label><input id="ee-video"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-editar-ej')">Cancelar</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Actualizar</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+async function submitCrearEjercicio(e){
+  e.preventDefault();
+  if(!validateRequired('form-crear-ej')) return;
+  const body={
+    nombre: document.getElementById('ej-nombre').value,
+    tipo: document.getElementById('ej-tipo').value,
+    nivel_dificultad: document.getElementById('ej-nivel').value,
+  };
+  const g=document.getElementById('ej-grupo').value; if(g) body.grupo_muscular=g;
+  const d=document.getElementById('ej-desc').value; if(d) body.descripcion=d;
+  const ins=document.getElementById('ej-instrucciones').value; if(ins) body.instrucciones=ins;
+  const img=document.getElementById('ej-imagen').value; if(img) body.imagen_url=img;
+  const vid=document.getElementById('ej-video').value; if(vid) body.video_url=vid;
+
+  const r=await fetch('/api/ejercicios/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const dat=await r.json();
+  if(r.ok){ toast('Ejercicio creado'); setTimeout(()=>location.reload(),900); }
+  else document.getElementById('alert-crear-ej').innerHTML=`<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${dat.detail||'Error'}</div>`;
+}
+
+function editarEjercicio(e){
+  document.getElementById('ee-id').value=e.id;
+  document.getElementById('ee-nombre').value=e.nombre||'';
+  document.getElementById('ee-tipo').value=e.tipo||'fuerza';
+  document.getElementById('ee-nivel').value=e.nivel_dificultad||'intermedio';
+  document.getElementById('ee-desc').value=e.descripcion||'';
+  document.getElementById('ee-imagen').value=e.imagen_url||'';
+  document.getElementById('ee-video').value=e.video_url||'';
+  const prev=document.getElementById('ee-img-preview');
+  if(e.imagen_url){prev.src=e.imagen_url;prev.classList.add('show');}else prev.classList.remove('show');
+  document.getElementById('alert-editar-ej').innerHTML='';
+  openModal('modal-editar-ej');
+}
+
+async function submitEditarEjercicio(e){
+  e.preventDefault();
+  const id=document.getElementById('ee-id').value;
+  const body={
+    nombre:document.getElementById('ee-nombre').value,
+    tipo:document.getElementById('ee-tipo').value,
+    nivel_dificultad:document.getElementById('ee-nivel').value,
+    descripcion:document.getElementById('ee-desc').value||null,
+    imagen_url:document.getElementById('ee-imagen').value||null,
+    video_url:document.getElementById('ee-video').value||null,
+  };
+  const r=await fetch(`/api/ejercicios/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const dat=await r.json();
+  if(r.ok){toast('Ejercicio actualizado');setTimeout(()=>location.reload(),900);}
+  else document.getElementById('alert-editar-ej').innerHTML=`<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${dat.detail||'Error'}</div>`;
+}
+</script>
+{% endblock %}

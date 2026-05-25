@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Rutinas — FitnessAPI{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div><h1>📋 Rutinas</h1><p>Planificación de sesiones de entrenamiento</p></div>
+    <button class="btn btn-primary" onclick="openModal('modal-crear-r')"><i class="fas fa-plus"></i> Nueva rutina</button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-body" style="padding:14px 20px">
+      <form method="get" action="/rutinas" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+        <div class="form-group" style="min-width:140px">
+          <label>Usuario ID</label>
+          <input name="usuario_id" type="number" value="{{ usuario_id or '' }}" placeholder="ID...">
+        </div>
+        <div class="form-group" style="min-width:140px">
+          <label>Desde</label>
+          <input name="fecha_inicio" type="date" value="{{ fecha_inicio or '' }}">
+        </div>
+        <div class="form-group" style="min-width:140px">
+          <label>Hasta</label>
+          <input name="fecha_fin" type="date" value="{{ fecha_fin or '' }}">
+        </div>
+        <div class="form-group" style="min-width:130px">
+          <label>Estado</label>
+          <select name="completada">
+            <option value="">Todas</option>
+            <option value="0" {% if completada=='0' %}selected{% endif %}>Pendientes</option>
+            <option value="1" {% if completada=='1' %}selected{% endif %}>Completadas</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-sm" type="submit"><i class="fas fa-search"></i> Filtrar</button>
+        <a href="/rutinas" class="btn btn-secondary btn-sm">Limpiar</a>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">{{ rutinas|length }} rutina(s)</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Nombre</th><th>Usuario</th><th>Ejercicio</th><th>Series × Reps</th><th>Peso</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>
+        {% for r in rutinas %}
+        <tr>
+          <td><strong>{{ r.nombre }}</strong></td>
+          <td style="font-size:12px;color:var(--muted)">#{{ r.usuario_id }}</td>
+          <td style="font-size:12px;color:var(--muted)">#{{ r.ejercicio_id }}</td>
+          <td style="font-family:var(--mono);font-size:12px">{{ r.series or '—' }} × {{ r.repeticiones or '—' }}</td>
+          <td style="font-size:12px">{{ r.peso_kg or '—' }} kg</td>
+          <td style="font-family:var(--mono);font-size:12px">{{ r.fecha_programada }}</td>
+          <td>{% if r.completada %}<span class="badge badge-active">✓ Completada</span>{% else %}<span class="badge badge-inactive">Pendiente</span>{% endif %}</td>
+          <td>
+            <div style="display:flex;gap:6px">
+              {% if not r.completada and r.is_active %}
+              <button class="btn btn-secondary btn-sm" onclick="marcarCompleta({{ r.id }})"><i class="fas fa-check"></i></button>
+              {% endif %}
+              {% if r.is_active %}
+              <button class="btn btn-danger btn-icon btn-sm" onclick="confirmDelete('/api/rutinas/{{ r.id }}','{{ r.nombre }}')"><i class="fas fa-trash"></i></button>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8"><div class="empty-state"><div class="icon">📋</div>Sin rutinas</div></td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CREAR RUTINA -->
+<div class="modal-overlay" id="modal-crear-r">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Nueva rutina</span>
+      <button class="modal-close" onclick="closeModal('modal-crear-r')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="form-crear-r" onsubmit="submitCrearRutina(event)">
+      <div class="modal-body">
+        <div id="alert-crear-r"></div>
+        <div class="form-grid">
+          <div class="form-group full"><label>Nombre *</label><input id="r-nombre" required placeholder="Pecho Lunes"><span class="field-error">Obligatorio</span></div>
+          <div class="form-group"><label>Usuario ID *</label><input id="r-uid" type="number" required placeholder="1"><span class="field-error">Obligatorio</span></div>
+          <div class="form-group"><label>Ejercicio ID *</label><input id="r-eid" type="number" required placeholder="1"><span class="field-error">Obligatorio</span></div>
+          <div class="form-group"><label>Fecha programada *</label><input id="r-fecha" type="date" required><span class="field-error">Obligatorio</span></div>
+          <div class="form-group"><label>Series</label><input id="r-series" type="number" min="1" placeholder="4"></div>
+          <div class="form-group"><label>Repeticiones</label><input id="r-reps" type="number" min="1" placeholder="10"></div>
+          <div class="form-group"><label>Peso (kg)</label><input id="r-peso" type="number" step="0.5" placeholder="80"></div>
+          <div class="form-group"><label>Duración (min)</label><input id="r-dur" type="number" placeholder="45"></div>
+          <div class="form-group full"><label>Notas</label><textarea id="r-notas" placeholder="Observaciones..."></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-crear-r')">Cancelar</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Set min date to today
+document.addEventListener('DOMContentLoaded', ()=>{
+  const today = new Date().toISOString().split('T')[0];
+  const d = document.getElementById('r-fecha');
+  if(d){ d.min=today; d.value=today; }
+});
+
+async function submitCrearRutina(e){
+  e.preventDefault();
+  if(!validateRequired('form-crear-r')) return;
+  const body={
+    nombre: document.getElementById('r-nombre').value,
+    usuario_id: +document.getElementById('r-uid').value,
+    ejercicio_id: +document.getElementById('r-eid').value,
+    fecha_programada: document.getElementById('r-fecha').value,
+  };
+  const s=document.getElementById('r-series').value; if(s) body.series=+s;
+  const rp=document.getElementById('r-reps').value; if(rp) body.repeticiones=+rp;
+  const pe=document.getElementById('r-peso').value; if(pe) body.peso_kg=+pe;
+  const du=document.getElementById('r-dur').value; if(du) body.duracion_min=+du;
+  const no=document.getElementById('r-notas').value; if(no) body.notas=no;
+
+  const r=await fetch('/api/rutinas/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json();
+  if(r.ok){toast('Rutina creada');setTimeout(()=>location.reload(),900);}
+  else document.getElementById('alert-crear-r').innerHTML=`<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${d.detail||'Error'}</div>`;
+}
+
+async function marcarCompleta(id){
+  const r=await fetch(`/api/rutinas/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({completada:true})});
+  if(r.ok){toast('Rutina marcada como completada ✓');setTimeout(()=>location.reload(),900);}
+  else toast('Error al actualizar','error');
+}
+</script>
+{% endblock %}

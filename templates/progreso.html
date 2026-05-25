@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Progreso — FitnessAPI{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div><h1>📈 Registros de Progreso</h1><p>Seguimiento de medidas corporales y nutrición</p></div>
+    <button class="btn btn-primary" onclick="openModal('modal-crear-p')"><i class="fas fa-plus"></i> Nuevo registro</button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-body" style="padding:14px 20px">
+      <form method="get" action="/progreso" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+        <div class="form-group" style="min-width:140px"><label>Usuario ID</label><input name="usuario_id" type="number" value="{{ usuario_id or '' }}" placeholder="ID..."></div>
+        <div class="form-group" style="min-width:140px"><label>Desde</label><input name="fecha_inicio" type="date" value="{{ fecha_inicio or '' }}"></div>
+        <div class="form-group" style="min-width:140px"><label>Hasta</label><input name="fecha_fin" type="date" value="{{ fecha_fin or '' }}"></div>
+        <button class="btn btn-primary btn-sm" type="submit"><i class="fas fa-search"></i> Filtrar</button>
+        <a href="/progreso" class="btn btn-secondary btn-sm">Limpiar</a>
+      </form>
+    </div>
+  </div>
+
+  <!-- Gráfica de peso si hay datos del mismo usuario -->
+  {% if chart_data %}
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-header"><span class="card-title">Evolución de peso — Usuario #{{ usuario_id }}</span></div>
+    <div class="card-body" style="height:240px">
+      <canvas id="chartPeso"></canvas>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">{{ registros|length }} registro(s)</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Usuario</th><th>Fecha</th><th>Peso</th><th>Calorías</th><th>Proteínas</th><th>Energía</th><th>Notas</th><th>Acciones</th></tr></thead>
+        <tbody>
+        {% for r in registros %}
+        <tr>
+          <td style="color:var(--muted);font-family:var(--mono)">{{ r.id }}</td>
+          <td style="font-family:var(--mono);font-size:12px">#{{ r.usuario_id }}</td>
+          <td style="font-family:var(--mono);font-size:12px">{{ r.fecha }}</td>
+          <td>{{ r.peso_kg or '—' }} kg</td>
+          <td>{{ r.calorias_consumidas or '—' }}</td>
+          <td>{{ r.proteinas_g or '—' }} g</td>
+          <td>{% if r.nivel_energia %}<span style="color:var(--accent3)">⚡ {{ r.nivel_energia }}/10</span>{% else %}—{% endif %}</td>
+          <td style="font-size:12px;color:var(--muted);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.notas or '—' }}</td>
+          <td>
+            {% if r.is_active %}
+            <button class="btn btn-danger btn-icon btn-sm" onclick="confirmDelete('/api/registros/{{ r.id }}','Registro {{ r.fecha }}')"><i class="fas fa-trash"></i></button>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9"><div class="empty-state"><div class="icon">📊</div>Sin registros</div></td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CREAR REGISTRO -->
+<div class="modal-overlay" id="modal-crear-p">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Nuevo registro de progreso</span>
+      <button class="modal-close" onclick="closeModal('modal-crear-p')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="form-crear-p" onsubmit="submitCrearProgreso(event)">
+      <div class="modal-body">
+        <div id="alert-crear-p"></div>
+        <div class="form-grid">
+          <div class="form-group"><label>Usuario ID *</label><input id="p-uid" type="number" required placeholder="1"><span class="field-error">Obligatorio</span></div>
+          <div class="form-group"><label>Fecha *</label><input id="p-fecha" type="date" required><span class="field-error">Obligatorio</span></div>
+          <div class="form-group"><label>Peso (kg)</label><input id="p-peso" type="number" step="0.1" placeholder="80.5"></div>
+          <div class="form-group"><label>Nivel energía (1–10)</label><input id="p-energia" type="number" min="1" max="10" placeholder="8"></div>
+          <div class="form-group"><label>Calorías consumidas</label><input id="p-cal" type="number" placeholder="2500"></div>
+          <div class="form-group"><label>Proteínas (g)</label><input id="p-prot" type="number" step="0.1" placeholder="180"></div>
+          <div class="form-group"><label>Carbohidratos (g)</label><input id="p-carb" type="number" step="0.1" placeholder="300"></div>
+          <div class="form-group"><label>Grasas (g)</label><input id="p-grasas" type="number" step="0.1" placeholder="70"></div>
+          <div class="form-group"><label>Cintura (cm)</label><input id="p-cintura" type="number" step="0.1"></div>
+          <div class="form-group"><label>Cadera (cm)</label><input id="p-cadera" type="number" step="0.1"></div>
+          <div class="form-group full"><label>Notas</label><textarea id="p-notas" placeholder="¿Cómo fue el día?"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-crear-p')">Cancelar</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', ()=>{
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('p-fecha').value = today;
+});
+
+async function submitCrearProgreso(e){
+  e.preventDefault();
+  if(!validateRequired('form-crear-p')) return;
+  const body={ usuario_id:+document.getElementById('p-uid').value, fecha:document.getElementById('p-fecha').value };
+  const fields={peso_kg:'p-peso',nivel_energia:'p-energia',calorias_consumidas:'p-cal',
+    proteinas_g:'p-prot',carbohidratos_g:'p-carb',grasas_g:'p-grasas',
+    cintura_cm:'p-cintura',cadera_cm:'p-cadera',notas:'p-notas'};
+  for(const [k,id] of Object.entries(fields)){
+    const v=document.getElementById(id).value;
+    if(v) body[k]=k==='notas'?v:+v;
+  }
+  const r=await fetch('/api/registros/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json();
+  if(r.ok){toast('Registro guardado');setTimeout(()=>location.reload(),900);}
+  else document.getElementById('alert-crear-p').innerHTML=`<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${d.detail||'Error'}</div>`;
+}
+
+{% if chart_data %}
+const chartData = {{ chart_data | tojson }};
+new Chart(document.getElementById('chartPeso'), {
+  type:'line',
+  data:{
+    labels: chartData.map(x=>x.fecha),
+    datasets:[{
+      label:'Peso (kg)',
+      data: chartData.map(x=>x.peso_kg),
+      borderColor:'#22d3a5', backgroundColor:'rgba(34,211,165,.1)',
+      tension:.4, fill:true, pointBackgroundColor:'#22d3a5', pointRadius:4
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{labels:{color:'#94a3b8'}} },
+    scales:{
+      x:{ticks:{color:'#64748b'},grid:{color:'rgba(42,48,69,.5)'}},
+      y:{ticks:{color:'#64748b'},grid:{color:'rgba(42,48,69,.5)'}}
+    }
+  }
+});
+{% endif %}
+</script>
+{% endblock %}
