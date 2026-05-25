@@ -74,7 +74,11 @@
           <td>
             <div style="display:flex;gap:6px">
               <a href="/usuarios/{{ u.id }}" class="btn btn-secondary btn-icon btn-sm" title="Ver detalle"><i class="fas fa-eye"></i></a>
-              <button class="btn btn-secondary btn-icon btn-sm" onclick="editarUsuario({{ u | tojson }})" title="Editar"><i class="fas fa-pen"></i></button>
+              <button class="btn btn-secondary btn-icon btn-sm" 
+                      data-usuario="{{ u | tojson | e }}"
+                      onclick="editarUsuario(this)" title="Editar">
+                <i class="fas fa-pen"></i>
+              </button>
               {% if u.is_active %}
               <button class="btn btn-danger btn-icon btn-sm" onclick="confirmDelete('/api/usuarios/{{ u.id }}','{{ u.nombre }}')" title="Desactivar"><i class="fas fa-trash"></i></button>
               {% endif %}
@@ -220,7 +224,8 @@ async function submitCrearUsuario(e){
   }
 }
 
-function editarUsuario(u){
+function editarUsuario(btn){
+  const u = JSON.parse(btn.getAttribute('data-usuario'));
   document.getElementById('e-id').value = u.id;
   document.getElementById('e-nombre').value = u.nombre || '';
   document.getElementById('e-edad').value = u.edad || '';
@@ -229,7 +234,8 @@ function editarUsuario(u){
   document.getElementById('e-objetivo').value = u.objetivo || '';
   document.getElementById('e-foto').value = u.foto_perfil || '';
   const prev = document.getElementById('e-foto-preview');
-  if(u.foto_perfil){ prev.src=u.foto_perfil; prev.classList.add('show'); } else prev.classList.remove('show');
+  if(u.foto_perfil){ prev.src=u.foto_perfil; prev.classList.add('show'); } 
+  else prev.classList.remove('show');
   document.getElementById('alert-editar').innerHTML='';
   openModal('modal-editar');
 }

@@ -75,7 +75,11 @@
         {% endif %}
         <div class="ex-card-actions">
           <a href="/ejercicios/{{ e.id }}" class="btn btn-secondary btn-sm"><i class="fas fa-eye"></i></a>
-          <button class="btn btn-secondary btn-sm" onclick="editarEjercicio({{ e | tojson }})"><i class="fas fa-pen"></i></button>
+          <button class="btn btn-secondary btn-sm"
+                  data-ejercicio="{{ e | tojson | e }}"
+                  onclick="editarEjercicio(this)">
+            <i class="fas fa-pen"></i>
+          </button>
           {% if e.is_active %}
           <button class="btn btn-danger btn-sm" onclick="confirmDelete('/api/ejercicios/{{ e.id }}','{{ e.nombre }}')"><i class="fas fa-trash"></i></button>
           {% else %}
@@ -218,16 +222,18 @@ async function submitCrearEjercicio(e){
   else document.getElementById('alert-crear-ej').innerHTML=`<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${dat.detail||'Error'}</div>`;
 }
 
-function editarEjercicio(e){
-  document.getElementById('ee-id').value=e.id;
-  document.getElementById('ee-nombre').value=e.nombre||'';
-  document.getElementById('ee-tipo').value=e.tipo||'fuerza';
-  document.getElementById('ee-nivel').value=e.nivel_dificultad||'intermedio';
-  document.getElementById('ee-desc').value=e.descripcion||'';
-  document.getElementById('ee-imagen').value=e.imagen_url||'';
-  document.getElementById('ee-video').value=e.video_url||'';
-  const prev=document.getElementById('ee-img-preview');
-  if(e.imagen_url){prev.src=e.imagen_url;prev.classList.add('show');}else prev.classList.remove('show');
+function editarEjercicio(btn){
+  const e = JSON.parse(btn.getAttribute('data-ejercicio'));
+  document.getElementById('ee-id').value = e.id;
+  document.getElementById('ee-nombre').value = e.nombre || '';
+  document.getElementById('ee-tipo').value = e.tipo || 'fuerza';
+  document.getElementById('ee-nivel').value = e.nivel_dificultad || 'intermedio';
+  document.getElementById('ee-desc').value = e.descripcion || '';
+  document.getElementById('ee-imagen').value = e.imagen_url || '';
+  document.getElementById('ee-video').value = e.video_url || '';
+  const prev = document.getElementById('ee-img-preview');
+  if(e.imagen_url){ prev.src=e.imagen_url; prev.classList.add('show'); } 
+  else prev.classList.remove('show');
   document.getElementById('alert-editar-ej').innerHTML='';
   openModal('modal-editar-ej');
 }
