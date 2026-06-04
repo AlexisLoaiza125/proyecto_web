@@ -57,3 +57,22 @@ hecho en [https://lucid.com](https://lucid.app/)
 <img width="2212" height="1046" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/7b89d065-3206-4d84-858f-89cadfc4e815" />
 hecho en https://mermaid.live/
 
+## Tabla de reglas de negocio
+## Reglas de Negocio
+
+El sistema implementa las siguientes reglas de negocio para garantizar la integridad y consistencia de los datos:
+
+| Regla de negocio                                                  | Tipo de validación             | Código HTTP                |
+| ----------------------------------------------------------------- | ------------------------------ | -------------------------- |
+| Un email no puede repetirse entre usuarios activos.               | Verificación de unicidad       | `400 Bad Request`          |
+| Un username no puede repetirse entre usuarios activos.            | Verificación de unicidad       | `400 Bad Request`          |
+| No se puede eliminar un usuario con rutinas activas.              | Integridad de negocio          | `409 Conflict`             |
+| No se puede duplicar un ejercicio con el mismo nombre y tipo.     | Verificación de unicidad       | `400 Bad Request`          |
+| No se puede eliminar un ejercicio asociado a rutinas activas.     | Integridad referencial         | `409 Conflict`             |
+| La fecha de una rutina no puede estar en el pasado.               | Validación temporal            | `400 Bad Request`          |
+| Solo usuarios y ejercicios activos pueden asociarse a una rutina. | Validación de estado           | `404 Not Found`            |
+| Un usuario solo puede tener un registro de progreso por día.      | Restricción de unicidad lógica | `400 Bad Request`          |
+| El nivel de energía debe estar entre 1 y 10.                      | Validación de rango            | `422 Unprocessable Entity` |
+| Las eliminaciones son lógicas mediante `is_active=False`.         | Soft Delete                    | `200 OK`                   |
+
+
