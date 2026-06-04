@@ -49,6 +49,7 @@ fitness_api/
 ```
 ## Diagrama de clases 
 <img width="676" height="791" alt="image" src="https://github.com/user-attachments/assets/d9b68aea-16af-4121-aa3e-a905339d65e2" />
+
 hecho en hhtps://lucid.com
 
 
