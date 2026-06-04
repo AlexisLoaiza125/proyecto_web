@@ -47,5 +47,5 @@ fitness_api/
 |       └── ejercicios/
 └── seed.py                    #(minidataset) Datos de prueba
 ```
-Diagrma de clases 
+## Diagrama de clases 
 <img width="676" height="791" alt="image" src="https://github.com/user-attachments/assets/d9b68aea-16af-4121-aa3e-a905339d65e2" />
