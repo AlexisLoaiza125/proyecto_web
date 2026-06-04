@@ -55,4 +55,4 @@ hecho en [https://lucid.com](https://lucid.app/)
 
 ## Diagrma de secuencia 
 <img width="2212" height="1046" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/7b89d065-3206-4d84-858f-89cadfc4e815" />
-hecho en [https://mermaid.com](https://mermaid.js.org/)
+hecho en [[https://mermaid.com](https://mermaid.js.org/)
