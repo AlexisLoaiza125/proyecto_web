@@ -1,5 +1,6 @@
 from datetime import datetime, date
 from typing import Optional
+import re
 from pydantic import BaseModel, field_validator
 
 OBJETIVOS = {"perder_peso","ganar_musculo","mantenimiento","resistencia"}
@@ -15,9 +16,11 @@ class UsuarioCreate(BaseModel):
 
     @field_validator("nombre")
     @classmethod
-    def nombre_ok(cls,v):
-        if not v.strip(): raise ValueError("Nombre vacío")
-        return v.strip()
+    def nombre_ok(cls,v): 
+        v= v.strip()
+        if not v.strip(): raise ValueError("Nombre vacío")        
+        if not re.fullmatch(r"[A-Za-zÁÉÍÓÚáéíóúÑñ ]+", v): raise ValueError("El nombre solo puede contener letras y espacios")
+        return v
     @field_validator("edad")
     @classmethod
     def edad_ok(cls,v):
@@ -28,12 +31,12 @@ class UsuarioCreate(BaseModel):
     def obj_ok(cls,v):
         if v and v not in OBJETIVOS: raise ValueError(f"Objetivo: {OBJETIVOS}")
         return v
-    @field_validator("peso")
+    @field_validator("peso_kg")
     @classmethod
     def peso_ok(cls,v):
         if v is not None and not(30<=v<=200): raise ValueError("Peso 30-200")
         return v
-    @field_validator("altura")
+    @field_validator("altura_cm")
     @classmethod
     def altura_ok(cls,v):
         if v is not None and not(100<=v<=300): raise ValueError("peso 100-300")
@@ -44,10 +47,32 @@ class UsuarioUpdate(BaseModel):
     nombre: Optional[str]=None; edad: Optional[int]=None
     peso_kg: Optional[float]=None; altura_cm: Optional[float]=None
     objetivo: Optional[str]=None; foto_perfil: Optional[str]=None
+    @field_validator("nombre")
+    @classmethod
+    def nombre_ok(cls,v): 
+        v= v.strip()
+        if not v.strip(): raise ValueError("Nombre vacío")        
+        if not re.fullmatch(r"[A-Za-zÁÉÍÓÚáéíóúÑñ ]+", v): raise ValueError("El nombre solo puede contener letras y espacios")
+        return v
+    @field_validator("edad")
+    @classmethod
+    def edad_ok(cls,v):
+        if v and not(10<=v<=80): raise ValueError("Edad 10-80")
+        return v
     @field_validator("objetivo")
     @classmethod
     def obj_ok(cls,v):
         if v and v not in OBJETIVOS: raise ValueError(f"Objetivo: {OBJETIVOS}")
+        return v
+    @field_validator("peso_kg")
+    @classmethod
+    def peso_ok(cls,v):
+        if v is not None and not(30<=v<=200): raise ValueError("Peso 30-200")
+        return v
+    @field_validator("altura_cm")
+    @classmethod
+    def altura_ok(cls,v):
+        if v is not None and not(100<=v<=300): raise ValueError("peso 100-300")
         return v
 
 class UsuarioResponse(UsuarioCreate):
