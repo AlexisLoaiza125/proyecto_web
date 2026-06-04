@@ -21,13 +21,24 @@ class UsuarioCreate(BaseModel):
     @field_validator("edad")
     @classmethod
     def edad_ok(cls,v):
-        if v and not(10<=v<=120): raise ValueError("Edad 10-120")
+        if v and not(10<=v<=80): raise ValueError("Edad 10-80")
         return v
     @field_validator("objetivo")
     @classmethod
     def obj_ok(cls,v):
         if v and v not in OBJETIVOS: raise ValueError(f"Objetivo: {OBJETIVOS}")
         return v
+    @field_validator("peso")
+    @classmethod
+    def peso_ok(cls,v):
+        if v is not None and not(30<=v<=200): raise ValueError("Peso 30-200")
+        return v
+    @field_validator("altura")
+    @classmethod
+    def altura_ok(cls,v):
+        if v is not None and not(100<=v<=300): raise ValueError("peso 100-300")
+        return v
+
 
 class UsuarioUpdate(BaseModel):
     nombre: Optional[str]=None; edad: Optional[int]=None
