@@ -1,6 +1,24 @@
 #Fitness API v2.0
 
 Sistema backend completo para gestión de entrenamiento físico, desarrollado con **FastAPI + SQLAlchemy + Jinja2**. Incluye frontend web integrado, multimedia (URLs de imágenes y videos), dashboards con gráficas y despliegue en producción con Render + Supabase.
+##  Instalación local
+
+```bash
+# 1. Clonar e instalar
+git clone https://github.com...
+cd fitness_api
+python -m venv venv
+source venv/bin/activate      # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# 2. Variables de entorno
+# Editar .env con DATABASE_URL, SUPABASE_URL, SUPABASE_KEY de Supabase
+
+# 3. Iniciar
+uvicorn main:app --reload --port 8000
+```
+
+Abrir: `http://127.0.0.1:8000`
 
 ## 📁 Estructura del proyecto
 ```
