@@ -118,16 +118,16 @@ class RutinaCreate(BaseModel):
     @field_validator("series")
     @classmethod
     def series_ok(cls,v):
-        if v is not None and (1>=v>=10): raise ValueError("series 1-10")
+        if v is not None and not(1<=v<=10): raise ValueError("series 1-10")
         return v
     @field_validator("repeticiones")
     @classmethod
     def reps_ok(cls,v):
-        if v is not None and (4>=v>=30): raise ValueError("repeticiones 4-30")
+        if v is not None and not(4<=v<=30): raise ValueError("repeticiones 4-30")
         return v
     @field_validator("duracion_min") 
     def duracion_ok(cls,v):
-        if v is not None and (10>=v>350): raise ValueError("duracion 10-350")
+        if v is not None and not(10<=v<350): raise ValueError("duracion 10-350")
     
 class RutinaUpdate(BaseModel):
     nombre: Optional[str]=None; series: Optional[int]=None

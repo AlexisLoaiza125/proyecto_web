@@ -139,9 +139,9 @@
             </select>
           </div>
           <div class="form-group full">
-            <label>URL foto de perfil (multimedia)</label>
-            <input id="c-foto" placeholder="https://..." oninput="previewImg('c-foto','c-foto-preview')">
-            <img id="c-foto-preview" class="img-preview" alt="preview foto">
+            <label>📷 Foto de perfil</label>
+            <input id="c-foto-file" type="file" accept="image/*" onchange="previewFile(this,'c-foto-preview')">
+            <img id="c-foto-preview" class="img-preview" alt="preview">
           </div>
         </div>
       </div>
@@ -180,8 +180,8 @@
             </select>
           </div>
           <div class="form-group full">
-            <label>URL foto de perfil</label>
-            <input id="e-foto" placeholder="https://..." oninput="previewImg('e-foto','e-foto-preview')">
+            <label>📷 Foto de perfil</label>
+            <input id="e-foto-file" type="file" accept="image/*" onchange="previewFile(this,'e-foto-preview')">
             <img id="e-foto-preview" class="img-preview" alt="preview">
           </div>
         </div>
@@ -199,30 +199,57 @@
 <script>
   // Mapa de usuarios generado por Jinja2
 
-async function submitCrearUsuario(e){
+function previewFile(input, previewId) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById(previewId);
+    img.src = e.target.result;
+    img.classList.add('show');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitCrearUsuario(e) {
   e.preventDefault();
-  if(!validateRequired('form-crear-usuario')) return;
+  if (!validateRequired('form-crear-usuario')) return;
+
+  // 1. Crear el usuario primero
   const body = {
     nombre: document.getElementById('c-nombre').value,
     email: document.getElementById('c-email').value,
     username: document.getElementById('c-username').value,
   };
-  const edad=document.getElementById('c-edad').value; if(edad) body.edad=+edad;
-  const peso=document.getElementById('c-peso').value; if(peso) body.peso_kg=+peso;
-  const alt=document.getElementById('c-altura').value; if(alt) body.altura_cm=+alt;
-  const obj=document.getElementById('c-objetivo').value; if(obj) body.objetivo=obj;
-  const foto=document.getElementById('c-foto').value; if(foto) body.foto_perfil=foto;
+  const edad = document.getElementById('c-edad').value; if(edad) body.edad=+edad;
+  const peso = document.getElementById('c-peso').value; if(peso) body.peso_kg=+peso;
+  const alt  = document.getElementById('c-altura').value; if(alt) body.altura_cm=+alt;
+  const obj  = document.getElementById('c-objetivo').value; if(obj) body.objetivo=obj;
 
-  const r = await fetch('/api/usuarios/', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  const r = await fetch('/api/usuarios/', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
   const d = await r.json();
-  if(r.ok){ toast('Usuario creado correctamente'); setTimeout(()=>location.reload(), 900); }
-  else {
-    const alert=document.getElementById('alert-crear');
-    alert.innerHTML=`<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${d.detail||'Error al crear usuario'}</div>`;
+  if (!r.ok) {
+    document.getElementById('alert-crear').innerHTML =
+      `<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${d.detail||'Error'}</div>`;
+    return;
   }
-}
 
-function editarUsuario(btn){
+  // 2. Si hay foto, subirla
+  const fotoFile = document.getElementById('c-foto-file').files[0];
+  if (fotoFile) {
+    const form = new FormData();
+    form.append('archivo', fotoFile);
+    await fetch(`/api/usuarios/${d.id}/foto`, { method: 'POST', body: form });
+  }
+
+  toast('Usuario creado correctamente');
+  setTimeout(() => location.reload(), 900);
+}
+function editarUsuario(btn) {
   const u = JSON.parse(btn.getAttribute('data-usuario'));
   document.getElementById('e-id').value = u.id;
   document.getElementById('e-nombre').value = u.nombre || '';
@@ -230,31 +257,52 @@ function editarUsuario(btn){
   document.getElementById('e-peso').value = u.peso_kg || '';
   document.getElementById('e-altura').value = u.altura_cm || '';
   document.getElementById('e-objetivo').value = u.objetivo || '';
-  document.getElementById('e-foto').value = u.foto_perfil || '';
+  // Mostrar foto actual si existe
   const prev = document.getElementById('e-foto-preview');
-  if(u.foto_perfil){ prev.src=u.foto_perfil; prev.classList.add('show'); }
+  if (u.foto_perfil) { prev.src = u.foto_perfil; prev.classList.add('show'); }
   else prev.classList.remove('show');
   document.getElementById('alert-editar').innerHTML = '';
   openModal('modal-editar');
 }
 
-async function submitEditarUsuario(e){
+async function submitEditarUsuario(e) {
   e.preventDefault();
   const id = document.getElementById('e-id').value;
-  const body={};
-  const nom=document.getElementById('e-nombre').value; if(nom) body.nombre=nom;
-  const edad=document.getElementById('e-edad').value; if(edad) body.edad=+edad;
-  const peso=document.getElementById('e-peso').value; if(peso) body.peso_kg=+peso;
-  const alt=document.getElementById('e-altura').value; if(alt) body.altura_cm=+alt;
-  const obj=document.getElementById('e-objetivo').value; if(obj) body.objetivo=obj;
-  const foto=document.getElementById('e-foto').value; body.foto_perfil=foto||null;
+  const body = {};
+  const nom = document.getElementById('e-nombre').value; if(nom) body.nombre = nom;
+  const edad = document.getElementById('e-edad').value; if(edad) body.edad = +edad;
+  const peso = document.getElementById('e-peso').value; if(peso) body.peso_kg = +peso;
+  const alt  = document.getElementById('e-altura').value; if(alt) body.altura_cm = +alt;
+  const obj  = document.getElementById('e-objetivo').value; if(obj) body.objetivo = obj;
 
-  const r = await fetch(`/api/usuarios/${id}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  // 1. Actualizar datos del usuario
+  const r = await fetch(`/api/usuarios/${id}`, {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  });
   const d = await r.json();
-  if(r.ok){ toast('Usuario actualizado'); setTimeout(()=>location.reload(), 900); }
-  else {
-    document.getElementById('alert-editar').innerHTML=`<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${d.detail||'Error'}</div>`;
+  if (!r.ok) {
+    document.getElementById('alert-editar').innerHTML =
+      `<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${d.detail||'Error'}</div>`;
+    return;
   }
+
+  // 2. Si eligió nueva foto, subirla
+  const fotoFile = document.getElementById('e-foto-file').files[0];
+  if (fotoFile) {
+    const form = new FormData();
+    form.append('archivo', fotoFile);
+    const rf = await fetch(`/api/usuarios/${id}/foto`, { method: 'POST', body: form });
+    if (!rf.ok) {
+      document.getElementById('alert-editar').innerHTML =
+        `<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> Error subiendo la foto</div>`;
+      return;
+    }
+  }
+
+  toast('Usuario actualizado');
+  setTimeout(() => location.reload(), 900);
 }
 </script>
 {% endblock %}

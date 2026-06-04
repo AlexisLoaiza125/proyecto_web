@@ -8,7 +8,7 @@ from datetime import date
 from typing import Optional
 from collections import Counter
 
-from fastapi import FastAPI, Request, Depends, Query, HTTPException
+from fastapi import FastAPI, Request, Depends, Query, HTTPException, UploadFile, File
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -18,6 +18,8 @@ from sqlalchemy.orm import Session
 
 from database import init_db
 from database.connection import get_db
+from database.storage import subir_imagen
+import uuid
 from models.usuario import Usuario
 from models.ejercicio import Ejercicio
 from models.rutina import Rutina
@@ -226,6 +228,55 @@ def view_progreso(
         "fecha_inicio": fecha_inicio, "fecha_fin": fecha_fin,
         "chart_data": chart_data,
     })
+
+@app.post("/api/usuarios/{usuario_id}/foto")
+async def subir_foto_usuario(
+    usuario_id: int,
+    archivo: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    # Validar que sea imagen
+    if archivo.content_type not in ["image/jpeg","image/png","image/webp"]:
+        raise HTTPException(400, "Solo se permiten imágenes JPG, PNG o WEBP.")
+    # Validar tamaño máximo 5MB
+    contenido = await archivo.read()
+    if len(contenido) > 5 * 1024 * 1024:
+        raise HTTPException(400, "La imagen no puede superar 5MB.")
+
+    nombre = f"{usuario_id}_{uuid.uuid4().hex[:8]}.jpg"
+    url = subir_imagen(contenido, nombre, "usuarios")
+
+    usuario = UsuarioService.por_id(db, usuario_id)
+    usuario.foto_perfil = url
+    db.commit()
+    return {"url": url}
+
+
+@app.post("/api/ejercicios/{ejercicio_id}/imagen")
+async def subir_imagen_ejercicio(
+    ejercicio_id: int,
+    archivo: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    if archivo.content_type not in ["image/jpeg","image/png","image/webp"]:
+        raise HTTPException(400, "Solo se permiten imágenes JPG, PNG o WEBP.")
+    contenido = await archivo.read()
+    if len(contenido) > 5 * 1024 * 1024:
+        raise HTTPException(400, "La imagen no puede superar 5MB.")
+
+    nombre = f"{ejercicio_id}_{uuid.uuid4().hex[:8]}.jpg"
+    url = subir_imagen(contenido, nombre, "ejercicios")
+
+    ejercicio = EjercicioService.por_id(db, ejercicio_id)
+    ejercicio.imagen_url = url
+    db.commit()
+    return {"url": url}
+
+
+
+
+
+
 # ════════════════════════════════════════════════════════════════════════════
 #  JSON API ROUTES  (bajo /api/ — usados por el JS del frontend)
 # ════════════════════════════════════════════════════════════════════════════
