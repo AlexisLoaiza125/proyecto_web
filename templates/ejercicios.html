@@ -131,9 +131,9 @@
           <div class="form-group full"><label>Descripción</label><textarea id="ej-desc" placeholder="¿En qué consiste el ejercicio?"></textarea></div>
           <div class="form-group full"><label>Instrucciones</label><textarea id="ej-instrucciones" placeholder="Paso a paso..."></textarea></div>
           <div class="form-group full">
-            <label>🖼️ URL de imagen (multimedia)</label>
-            <input id="ej-imagen" placeholder="https://imagen.com/ejercicio.jpg" oninput="previewImg('ej-imagen','ej-img-preview')">
-            <img id="ej-img-preview" class="img-preview" alt="preview imagen ejercicio">
+            <label>🖼️ Imagen del ejercicio (multimedia)</label>
+            <input id="ej-imagen-file" type="file" accept="image/*" onchange="previewFile(this,'ej-img-preview')">
+            <img id="ej-img-preview" class="img-preview" alt="preview">
           </div>
           <div class="form-group full">
             <label>🎥 URL de video (YouTube, multimedia)</label>
@@ -180,8 +180,8 @@
           </div>
           <div class="form-group full"><label>Descripción</label><textarea id="ee-desc"></textarea></div>
           <div class="form-group full">
-            <label>🖼️ URL imagen</label>
-            <input id="ee-imagen" oninput="previewImg('ee-imagen','ee-img-preview')">
+            <label>🖼️ Imagen del ejercicio</label>
+            <input id="ee-imagen-file" type="file" accept="image/*" onchange="previewFile(this,'ee-img-preview')">
             <img id="ee-img-preview" class="img-preview" alt="preview">
           </div>
           <div class="form-group full"><label>🎥 URL video</label><input id="ee-video"></div>
@@ -198,57 +198,90 @@
 
 {% block extra_scripts %}
 <script>
-async function submitCrearEjercicio(e){
+async function submitCrearEjercicio(e) {
   e.preventDefault();
-  if(!validateRequired('form-crear-ej')) return;
-  const body={
+  if (!validateRequired('form-crear-ej')) return;
+  const body = {
     nombre: document.getElementById('ej-nombre').value,
     tipo: document.getElementById('ej-tipo').value,
     nivel_dificultad: document.getElementById('ej-nivel').value,
   };
-  const g=document.getElementById('ej-grupo').value; if(g) body.grupo_muscular=g;
-  const d=document.getElementById('ej-desc').value; if(d) body.descripcion=d;
-  const ins=document.getElementById('ej-instrucciones').value; if(ins) body.instrucciones=ins;
-  const img=document.getElementById('ej-imagen').value; if(img) body.imagen_url=img;
-  const vid=document.getElementById('ej-video').value; if(vid) body.video_url=vid;
+  const g = document.getElementById('ej-grupo').value; if(g) body.grupo_muscular = g;
+  const d = document.getElementById('ej-desc').value; if(d) body.descripcion = d;
+  const ins = document.getElementById('ej-instrucciones').value; if(ins) body.instrucciones = ins;
+  const vid = document.getElementById('ej-video').value; if(vid) body.video_url = vid;
 
-  const r=await fetch('/api/ejercicios/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  const dat=await r.json();
-  if(r.ok){ toast('Ejercicio creado'); setTimeout(()=>location.reload(),900); }
-  else document.getElementById('alert-crear-ej').innerHTML=`<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${dat.detail||'Error'}</div>`;
+  // 1. Crear ejercicio
+  const r = await fetch('/api/ejercicios/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  });
+  const dat = await r.json();
+  if (!r.ok) {
+    document.getElementById('alert-crear-ej').innerHTML =
+      `<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${dat.detail||'Error'}</div>`;
+    return;
+  }
+
+  // 2. Si hay imagen, subirla
+  const imgFile = document.getElementById('ej-imagen-file').files[0];
+  if (imgFile) {
+    const form = new FormData();
+    form.append('archivo', imgFile);
+    await fetch(`/api/ejercicios/${dat.id}/imagen`, { method: 'POST', body: form });
+  }
+
+  toast('Ejercicio creado'); setTimeout(() => location.reload(), 900);
 }
-
-function editarEjercicio(btn){
+function editarEjercicio(btn) {
   const e = JSON.parse(btn.getAttribute('data-ejercicio'));
   document.getElementById('ee-id').value = e.id;
   document.getElementById('ee-nombre').value = e.nombre || '';
   document.getElementById('ee-tipo').value = e.tipo || 'fuerza';
   document.getElementById('ee-nivel').value = e.nivel_dificultad || 'intermedio';
   document.getElementById('ee-desc').value = e.descripcion || '';
-  document.getElementById('ee-imagen').value = e.imagen_url || '';
   document.getElementById('ee-video').value = e.video_url || '';
   const prev = document.getElementById('ee-img-preview');
-  if(e.imagen_url){ prev.src=e.imagen_url; prev.classList.add('show'); }
+  if (e.imagen_url) { prev.src = e.imagen_url; prev.classList.add('show'); }
   else prev.classList.remove('show');
   document.getElementById('alert-editar-ej').innerHTML = '';
   openModal('modal-editar-ej');
 }
 
-async function submitEditarEjercicio(e){
+async function submitEditarEjercicio(e) {
   e.preventDefault();
-  const id=document.getElementById('ee-id').value;
-  const body={
-    nombre:document.getElementById('ee-nombre').value,
-    tipo:document.getElementById('ee-tipo').value,
-    nivel_dificultad:document.getElementById('ee-nivel').value,
-    descripcion:document.getElementById('ee-desc').value||null,
-    imagen_url:document.getElementById('ee-imagen').value||null,
-    video_url:document.getElementById('ee-video').value||null,
+  const id = document.getElementById('ee-id').value;
+  const body = {
+    nombre: document.getElementById('ee-nombre').value,
+    tipo: document.getElementById('ee-tipo').value,
+    nivel_dificultad: document.getElementById('ee-nivel').value,
+    descripcion: document.getElementById('ee-desc').value || null,
+    video_url: document.getElementById('ee-video').value || null,
   };
-  const r=await fetch(`/api/ejercicios/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  const dat=await r.json();
-  if(r.ok){toast('Ejercicio actualizado');setTimeout(()=>location.reload(),900);}
-  else document.getElementById('alert-editar-ej').innerHTML=`<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${dat.detail||'Error'}</div>`;
+
+  // 1. Actualizar datos
+  const r = await fetch(`/api/ejercicios/${id}`, {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  });
+  const dat = await r.json();
+  if (!r.ok) {
+    document.getElementById('alert-editar-ej').innerHTML =
+      `<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${dat.detail||'Error'}</div>`;
+    return;
+  }
+
+  // 2. Si eligió nueva imagen, subirla
+  const imgFile = document.getElementById('ee-imagen-file').files[0];
+  if (imgFile) {
+    const form = new FormData();
+    form.append('archivo', imgFile);
+    await fetch(`/api/ejercicios/${id}/imagen`, { method: 'POST', body: form });
+  }
+
+  toast('Ejercicio actualizado'); setTimeout(() => location.reload(), 900);
 }
 </script>
 {% endblock %}
