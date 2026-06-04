@@ -115,12 +115,20 @@ class RutinaCreate(BaseModel):
     peso_kg: Optional[float]=None; duracion_min: Optional[int]=None
     fecha_programada: date; notas: Optional[str]=None; completada: Optional[bool]=False
 
-    @field_validator("series","repeticiones")
+    @field_validator("series")
     @classmethod
-    def pos(cls,v):
-        if v and v<=0: raise ValueError("Debe ser >0")
+    def series_ok(cls,v):
+        if v is not None and (1>=v>=10): raise ValueError("series 1-10")
         return v
-
+    @field_validator("repeticiones")
+    @classmethod
+    def reps_ok(cls,v):
+        if v is not None and (4>=v>=30): raise ValueError("repeticiones 4-30")
+        return v
+    @field_validator("duracion_min") 
+    def duracion_ok(cls,v):
+        if v is not None and (10>=v>350): raise ValueError("duracion 10-350")
+    
 class RutinaUpdate(BaseModel):
     nombre: Optional[str]=None; series: Optional[int]=None
     repeticiones: Optional[int]=None; peso_kg: Optional[float]=None

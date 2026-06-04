@@ -142,17 +142,37 @@ def view_ejercicio_detalle(request: Request, ejercicio_id: int, db: Session = De
         "request": request, "active": "ejercicios", "ejercicio": e, "total_rutinas": rutinas,
     })
 
+from fastapi import Query
+from typing import Optional
+from datetime import datetime, date
+
 @app.get("/rutinas", response_class=HTMLResponse)
 def view_rutinas(
-    request: Request, db: Session = Depends(get_db),
-    usuario_id: Optional[int] = None,
-    fecha_inicio: Optional[date] = None, fecha_fin: Optional[date] = None,
-    completada: Optional[str] = None,
+    request: Request, 
+    db: Session = Depends(get_db),
+    usuario_id: Optional[str] = Query(None), # Cambiado a str temporalmente
+    fecha_inicio: Optional[str] = Query(None), # Cambiado a str temporalmente
+    fecha_fin: Optional[str] = Query(None), # Cambiado a str temporalmente
+    completada: Optional[str] = Query(None),
 ):
+    # Validar y convertir usuario_id si tiene un valor real
+    u_id = int(usuario_id) if usuario_id and usuario_id.strip() else None
+    
+    # Validar y convertir fechas si tienen un valor real
+    f_inicio = None
+    if fecha_inicio and fecha_inicio.strip():
+        f_inicio = datetime.strptime(fecha_inicio, "%Y-%m-%d").date()
+        
+    f_fin = None
+    if fecha_fin and fecha_fin.strip():
+        f_fin = datetime.strptime(fecha_fin, "%Y-%m-%d").date()
+
     comp = None
     if completada == "1": comp = True
     elif completada == "0": comp = False
-    rutinas = RutinaService.filtrar(db, usuario_id=usuario_id, fecha_inicio=fecha_inicio, fecha_fin=fecha_fin, completada=comp)
+
+    # Pasamos las variables ya convertidas y limpias al servicio
+    rutinas = RutinaService.filtrar(db, usuario_id=u_id, fecha_inicio=f_inicio, fecha_fin=f_fin, completada=comp)
 
     rutinas_dict = [
         {
@@ -167,6 +187,7 @@ def view_rutinas(
         for r in rutinas
     ]
 
+    # Devolvemos los strings originales al HTML para que no se borren los inputs del formulario
     return templates.TemplateResponse("rutinas.html", {
         "request": request, "active": "rutinas",
         "rutinas": rutinas_dict, "usuario_id": usuario_id,
@@ -175,22 +196,36 @@ def view_rutinas(
 
 @app.get("/progreso", response_class=HTMLResponse)
 def view_progreso(
-    request: Request, db: Session = Depends(get_db),
-    usuario_id: Optional[int] = None,
-    fecha_inicio: Optional[date] = None, fecha_fin: Optional[date] = None,
+    request: Request, 
+    db: Session = Depends(get_db),
+    usuario_id: Optional[str] = Query(None),
+    fecha_inicio: Optional[str] = Query(None),
+    fecha_fin: Optional[str] = Query(None),
 ):
-    registros = RegistroService.filtrar(db, usuario_id=usuario_id, fecha_inicio=fecha_inicio, fecha_fin=fecha_fin)
+    # Validar y convertir
+    u_id = int(usuario_id) if usuario_id and usuario_id.strip() else None
+    
+    f_inicio = None
+    if fecha_inicio and fecha_inicio.strip():
+        f_inicio = datetime.strptime(fecha_inicio, "%Y-%m-%d").date()
+        
+    f_fin = None
+    if fecha_fin and fecha_fin.strip():
+        f_fin = datetime.strptime(fecha_fin, "%Y-%m-%d").date()
+
+    registros = RegistroService.filtrar(db, usuario_id=u_id, fecha_inicio=f_inicio, fecha_fin=f_fin)
+    
     chart_data = None
-    if usuario_id:
-        rps = RegistroService.stats_usuario(db, usuario_id)
+    if u_id:
+        rps = RegistroService.stats_usuario(db, u_id)
         chart_data = [{"fecha": str(r.fecha), "peso_kg": r.peso_kg} for r in rps if r.peso_kg]
+        
     return templates.TemplateResponse("progreso.html", {
         "request": request, "active": "progreso",
         "registros": registros, "usuario_id": usuario_id,
         "fecha_inicio": fecha_inicio, "fecha_fin": fecha_fin,
         "chart_data": chart_data,
     })
-
 # ════════════════════════════════════════════════════════════════════════════
 #  JSON API ROUTES  (bajo /api/ — usados por el JS del frontend)
 # ════════════════════════════════════════════════════════════════════════════
