@@ -87,6 +87,7 @@ Frontend (Vistas HTML)
 | GET    | `/progreso`        | Historial y gráficas de evolución física                    |
 
 API REST
+
 Usuarios
 | Método | Endpoint                            | Acción                 | HTTP |
 | ------ | ----------------------------------- | ---------------------- | ---- |
