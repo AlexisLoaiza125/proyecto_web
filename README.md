@@ -53,13 +53,11 @@ fitness_api/
 hecho en [https://lucid.com](https://lucid.app/)
 
 
-## Diagrma de secuencia 
+## Diagrma de secuencia para mostrar usuarios 
 <img width="2212" height="1046" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/7b89d065-3206-4d84-858f-89cadfc4e815" />
 hecho en https://mermaid.live/
 
 ## Tabla de reglas de negocio
-## Reglas de Negocio
-
 El sistema implementa las siguientes reglas de negocio para garantizar la integridad y consistencia de los datos:
 
 | Regla de negocio                                                  | Tipo de validación             | Código HTTP                |
@@ -74,5 +72,62 @@ El sistema implementa las siguientes reglas de negocio para garantizar la integr
 | Un usuario solo puede tener un registro de progreso por día.      | Restricción de unicidad lógica | `400 Bad Request`          |
 | El nivel de energía debe estar entre 1 y 10.                      | Validación de rango            | `422 Unprocessable Entity` |
 | Las eliminaciones son lógicas mediante `is_active=False`.         | Soft Delete                    | `200 OK`                   |
+
+
+## Mapa de endpoints
+Frontend (Vistas HTML)
+| Método | Ruta               | Funcionalidad                                               |
+| ------ | ------------------ | ----------------------------------------------------------- |
+| GET    | `/`                | Dashboard con estadísticas generales y gráficas de progreso |
+| GET    | `/usuarios`        | Gestión y consulta de usuarios con filtros                  |
+| GET    | `/usuarios/{id}`   | Detalle de usuario, foto, rutinas y progreso                |
+| GET    | `/ejercicios`      | Catálogo de ejercicios con contenido multimedia             |
+| GET    | `/ejercicios/{id}` | Detalle de ejercicio con imagen y video                     |
+| GET    | `/rutinas`         | Gestión de rutinas y filtros por usuario/fecha              |
+| GET    | `/progreso`        | Historial y gráficas de evolución física                    |
+
+API REST
+Usuarios
+| Método | Endpoint                            | Acción                 | HTTP |
+| ------ | ----------------------------------- | ---------------------- | ---- |
+| GET    | `/api/usuarios/`                    | Listar usuarios        | 200  |
+| GET    | `/api/usuarios/filtrar/`            | Filtrar por objetivo   | 200  |
+| GET    | `/api/usuarios/username/{username}` | Buscar por username    | 200  |
+| GET    | `/api/usuarios/{id}`                | Obtener usuario por ID | 200  |
+| POST   | `/api/usuarios/`                    | Crear usuario          | 201  |
+| PUT    | `/api/usuarios/{id}`                | Actualizar usuario     | 200  |
+| DELETE | `/api/usuarios/{id}`                | Eliminación lógica     | 200  |
+
+Ejercicios
+| Método | Endpoint                   | Acción                                   | HTTP |
+| ------ | -------------------------- | ---------------------------------------- | ---- |
+| GET    | `/api/ejercicios/`         | Listar ejercicios                        | 200  |
+| GET    | `/api/ejercicios/filtrar/` | Filtrar por tipo, grupo muscular o nivel | 200  |
+| GET    | `/api/ejercicios/buscar/`  | Búsqueda parcial por nombre              | 200  |
+| GET    | `/api/ejercicios/{id}`     | Obtener ejercicio por ID                 | 200  |
+| POST   | `/api/ejercicios/`         | Crear ejercicio con multimedia           | 201  |
+| PUT    | `/api/ejercicios/{id}`     | Actualizar ejercicio                     | 200  |
+| DELETE | `/api/ejercicios/{id}`     | Eliminación lógica                       | 200  |
+
+Rutinas
+| Método | Endpoint                | Acción                              | HTTP |
+| ------ | ----------------------- | ----------------------------------- | ---- |
+| GET    | `/api/rutinas/`         | Listar rutinas                      | 200  |
+| GET    | `/api/rutinas/filtrar/` | Filtrar por usuario, fecha o estado | 200  |
+| POST   | `/api/rutinas/`         | Crear rutina                        | 201  |
+| PUT    | `/api/rutinas/{id}`     | Actualizar o completar rutina       | 200  |
+| DELETE | `/api/rutinas/{id}`     | Eliminación lógica                  | 200  |
+
+Registros de Progreso
+| Método | Endpoint                  | Acción                                | HTTP |
+| ------ | ------------------------- | ------------------------------------- | ---- |
+| GET    | `/api/registros/`         | Listar registros                      | 200  |
+| GET    | `/api/registros/filtrar/` | Filtrar por usuario o rango de fechas | 200  |
+| GET    | `/api/registros/buscar/`  | Buscar por usuario y fecha exacta     | 200  |
+| POST   | `/api/registros/`         | Crear registro de progreso            | 201  |
+| PUT    | `/api/registros/{id}`     | Actualizar registro                   | 200  |
+| DELETE | `/api/registros/{id}`     | Eliminación lógica                    | 200  |
+
+
 
 
