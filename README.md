@@ -109,6 +109,7 @@ El sistema implementa las siguientes reglas de negocio para garantizar la integr
 | Cualquier dato que requiera estar en un intervalo determinado                     | Validación de rango            | `422 Unprocessable Entity` |
 | Nombre del usuario no debe tener numeros o caracteres especiales                     | Validación          | `422 Unprocessable Entity` |
 | Las eliminaciones son lógicas mediante `is_active=False`.         | Soft Delete                    | `200 OK`                   |
+| SQLAlchemy falla.         | Inertal server error                   | `500 internal server error`                   |
 
 
 ## Mapa de endpoints
