@@ -122,6 +122,8 @@ Frontend (Vistas HTML)
 | GET    | `/ejercicios/{id}` | Detalle de ejercicio con imagen y video                     |
 | GET    | `/rutinas`         | Gestión de rutinas y filtros por usuario/fecha              |
 | GET    | `/progreso`        | Historial y gráficas de evolución física                    |
+| POST    | `/api/usuarios/{usuario_id}/foto`        | cargar foto de perfil del usuario               |
+| POST   | `/api/ejericios/{ejercicio_id}/imagen`        | cargar imagen del ejercicio                |
 
 API REST
 
