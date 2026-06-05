@@ -1,3 +1,4 @@
+## Proyecto integrador - Entrega final
 
 Sistema backend completo para gestión de entrenamiento físico, desarrollado con **FastAPI + SQLAlchemy + Jinja2**. Incluye frontend web integrado, multimedia (URLs de imágenes y videos), dashboards con gráficas y despliegue en producción con Render + Supabase.
 
@@ -201,4 +202,17 @@ Registros de Progreso
 
 
 
+
+## info
+Nombre: Johan Alexis Loaiza Culma
+
+Codigo estudiantil: 67001155
+
+Institucion: Universidad catolica de colombia
+
+Fehca de presentacion: Mayo 2026
+
+Tutor: Sergio Iván Galvis Motoa 
+
+Materia: Ingenieria web 
 
