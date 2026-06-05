@@ -1,9 +1,12 @@
-#Fitness API v2.0
 
 Sistema backend completo para gestión de entrenamiento físico, desarrollado con **FastAPI + SQLAlchemy + Jinja2**. Incluye frontend web integrado, multimedia (URLs de imágenes y videos), dashboards con gráficas y despliegue en producción con Render + Supabase.
 
-URL Publica: 
+URL Publica: https://proyecto-web-v2py.onrender.com
+
 QR:
+
+<img width="400" height="400" alt="image" src="https://github.com/user-attachments/assets/cb463fec-0199-44cc-9252-860b8bf9ecc7" />
+
 
 ##  Instalación local
 
@@ -164,9 +167,38 @@ Registros de Progreso
 
 ## Variables de entorno para Render
 
+| Variable        | Valor                                                                  |
+|-----------------|------------------------------------------------------------------------|
+| `DATABASE_URL`  | `postgresql://postgres.[ref]:[pass]@pooler.supabase.com:6543/postgres` |
+| `SUPABASE_URL`  | `https://[ref].supabase.co`                                            |
+| `SUPABASE_KEY`  | `[SUPABASE_ANON_KEY]`                               |
+
+
 ## Storage en Supabase
+<img width="1132" height="634" alt="image" src="https://github.com/user-attachments/assets/a6aeb611-b8b1-44ba-90c5-ac5e2af770cf" />
+
 ## Tablas en Supabase 
+<img width="1548" height="572" alt="image" src="https://github.com/user-attachments/assets/4634b168-d8e0-4c45-95e7-5a576b3a0186" />
+
 ## imagenes de evidencia
+
+<p align="center">
+
+<img width="1893" height="925" alt="image" src="https://github.com/user-attachments/assets/5098ae26-3b8d-482d-886d-8f17a8f9b812" />
+
+<img width="1276" height="358" alt="image" src="https://github.com/user-attachments/assets/9befed86-cac0-488e-a2bc-0ca4537df7b6" />
+
+<img width="595" height="536" alt="image" src="https://github.com/user-attachments/assets/a3ec5919-c576-4346-9024-1fbb4356dfcb" />
+
+<img width="1262" height="860" alt="image" src="https://github.com/user-attachments/assets/2d13f852-2e69-44aa-8b89-d50585900cc2" />
+
+<img width="602" height="778" alt="image" src="https://github.com/user-attachments/assets/22de1308-68ad-495c-821c-c519f9eccde7" />
+
+<img width="1263" height="755" alt="image" src="https://github.com/user-attachments/assets/fc61062b-18f5-41ca-80fc-e78507da2ac1" />
+
+<img width="1257" height="878" alt="image" src="https://github.com/user-attachments/assets/b00ce695-1f03-4b71-8ad9-3a0ef311a90e" />
+</p>
+
 
 
 
