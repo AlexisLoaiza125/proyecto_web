@@ -204,7 +204,88 @@ Registros de Progreso
 <img width="1257" height="878" alt="image" src="https://github.com/user-attachments/assets/b00ce695-1f03-4b71-8ad9-3a0ef311a90e" />
 </p>
 
+## Checklist de requisitos implementados
 
+### Modelos de datos
+- [x] Modelo `Usuario` con atributos bien definidos y mapeado a tabla en BD
+- [x] Modelo `Ejercicio` con atributos bien definidos y mapeado a tabla en BD
+- [x] Modelo `Rutina` con atributos bien definidos y mapeado a tabla en BD
+- [x] Modelo `RegistroProgreso` con atributos bien definidos y mapeado a tabla en BD
+- [x] Relaciones entre modelos (Usuario → Rutinas, Usuario → Registros, Ejercicio → Rutinas)
+
+### CRUD y reglas de negocio
+- [x] CRUD completo para los 4 modelos
+- [x] No se permite email o username duplicado → `400`
+- [x] No se puede eliminar usuario con rutinas activas → `409`
+- [x] No se puede eliminar ejercicio en uso en rutinas → `409`
+- [x] No se puede crear rutina con fecha en el pasado → `400`
+- [x] No se puede crear dos registros el mismo día para el mismo usuario → `400`
+- [x] Usuario y ejercicio deben estar activos para crear una rutina → `404`
+
+### Eliminación lógica
+- [x] Campo `is_active` en todos los modelos
+- [x] DELETE no borra físicamente, cambia `is_active = False`
+- [x] Endpoint con parámetro `solo_activos` para consultar activos e inactivos
+- [x] Los datos históricos se conservan siempre
+
+### Endpoints con filtros
+- [x] Filtrar ejercicios por tipo, grupo muscular y nivel de dificultad
+- [x] Filtrar rutinas por usuario, rango de fechas y estado (completada)
+- [x] Filtrar registros por usuario y rango de fechas
+- [x] Filtrar usuarios por objetivo fitness
+
+### Búsqueda por atributo distinto al ID
+- [x] Búsqueda de usuario por `username` → `/api/usuarios/username/{username}`
+- [x] Búsqueda de ejercicio por nombre parcial → `/api/ejercicios/buscar/?nombre=`
+- [x] Búsqueda de registro por usuario + fecha exacta → `/api/registros/buscar/`
+- [x] Búsqueda global en navbar (usuarios y ejercicios simultáneamente)
+
+### Manejo de excepciones
+- [x] ID inexistente → `404` con mensaje claro
+- [x] Datos inválidos (Pydantic) → `422` con detalle del campo
+- [x] Conflicto de relaciones → `409`
+- [x] Error de base de datos → `500`
+- [x] Handler global que evita que el servidor se caiga
+
+### Estructura del proyecto
+- [x] Carpeta `models/` con modelos ORM
+- [x] Carpeta `schemas/` con validaciones Pydantic
+- [x] Carpeta `services/` con lógica de negocio
+- [x] Carpeta `database/` con conexión y storage
+- [x] Carpeta `templates/` con páginas Jinja2
+- [x] Carpeta `middleware/` con manejadores de errores
+- [x] `main.py` como punto de entrada
+
+### Frontend HTML
+- [x] Páginas renderizadas con Jinja2 integrado en FastAPI
+- [x] Estilos CSS propios aplicados a todo el sitio
+- [x] Navbar con búsqueda global en tiempo real (debounce)
+- [x] Filtros por formulario GET en cada página
+- [x] Formularios con validación HTML5 + JavaScript + backend
+- [x] Mensajes de error inline en los modales sin cerrar el formulario
+- [x] Sistema de notificaciones toast
+
+### Multimedia
+- [x] Subida real de imágenes a Supabase Storage
+- [x] Foto de perfil en usuarios (subida desde formulario)
+- [x] Imagen y video URL en ejercicios
+- [x] Previsualización de imagen antes de guardar
+- [x] Validación de tipo (JPG, PNG, WEBP) y tamaño máximo 5MB
+
+### Reportes y estadísticas
+- [x] Dashboard con 4 tarjetas de estadísticas en tiempo real
+- [x] Gráfica de dona — distribución de ejercicios por tipo (Chart.js)
+- [x] Gráfica de barras — objetivos de usuarios (Chart.js)
+- [x] Gráfica de línea — evolución de peso por usuario (Chart.js)
+
+### Despliegue
+- [x] Backend desplegado en Render (URL pública)
+- [x] Base de datos PostgreSQL en Supabase
+- [x] Imágenes almacenadas en Supabase Storage
+- [x] Variables de entorno configuradas (no expuestas en el código)
+- [x] `.env` en `.gitignore`
+- [x] `README.md` con documentación completa
+- [x] Repositorio organizado en GitHub con commits por fases
 
 
 ## info
