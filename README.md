@@ -1,6 +1,10 @@
 #Fitness API v2.0
 
 Sistema backend completo para gestión de entrenamiento físico, desarrollado con **FastAPI + SQLAlchemy + Jinja2**. Incluye frontend web integrado, multimedia (URLs de imágenes y videos), dashboards con gráficas y despliegue en producción con Render + Supabase.
+
+URL Publica: 
+QR:
+
 ##  Instalación local
 
 ```bash
@@ -75,6 +79,14 @@ hecho en [https://lucid.com](https://lucid.app/)
 <img width="2212" height="1046" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/7b89d065-3206-4d84-858f-89cadfc4e815" />
 hecho en https://mermaid.live/
 
+
+## Diagrama de despliegue
+<img width="2734" height="817" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/1de18785-b311-45bd-be61-6c5b9a7c7566" />
+hecho en https://mermaid.live/
+
+el usuario accede a una aplicación FastAPI desplegada en Render, que genera páginas con Jinja2 y consulta una base de datos PostgreSQL alojada en Supabase mediante un pool de conexiones seguro.
+
+
 ## Tabla de reglas de negocio
 El sistema implementa las siguientes reglas de negocio para garantizar la integridad y consistencia de los datos:
 
@@ -89,6 +101,8 @@ El sistema implementa las siguientes reglas de negocio para garantizar la integr
 | Solo usuarios y ejercicios activos pueden asociarse a una rutina. | Validación de estado           | `404 Not Found`            |
 | Un usuario solo puede tener un registro de progreso por día.      | Restricción de unicidad lógica | `400 Bad Request`          |
 | El nivel de energía debe estar entre 1 y 10.                      | Validación de rango            | `422 Unprocessable Entity` |
+| Cualquier dato que requiera estar en un intervalo determinado                     | Validación de rango            | `422 Unprocessable Entity` |
+| Nombre del usuario no debe tener numeros o caracteres especiales                     | Validación          | `422 Unprocessable Entity` |
 | Las eliminaciones son lógicas mediante `is_active=False`.         | Soft Delete                    | `200 OK`                   |
 
 
@@ -147,6 +161,12 @@ Registros de Progreso
 | PUT    | `/api/registros/{id}`     | Actualizar registro                   | 200  |
 | DELETE | `/api/registros/{id}`     | Eliminación lógica                    | 200  |
 
+
+## Variables de entorno para Render
+
+## Storage en Supabase
+## Tablas en Supabase 
+## imagenes de evidencia
 
 
 
