@@ -4,10 +4,15 @@ Sistema backend completo para gestión de entrenamiento físico, desarrollado co
 
 URL Publica: https://proyecto-web-v2py.onrender.com
 
+URL video explicativo: https://youtu.be/lNPpN1rfRU4
+
+
 QR:
 <p align="center">
 <img width="300" height="300" alt="image" src="https://github.com/user-attachments/assets/cb463fec-0199-44cc-9252-860b8bf9ecc7" />
 </p>
+
+
 
 ##  Instalación local
 
