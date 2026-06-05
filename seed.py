@@ -73,6 +73,57 @@ try:
             "objetivo": "ganar_musculo",
             "foto_perfil": "https://i.pravatar.cc/150?img=3",
         },
+        {
+            "nombre": "Sofia Ramirez",
+            "email": "sofia@fitness.com",
+            "username": "sramirez",
+            "edad": 27,
+            "peso_kg": 61.0,
+            "altura_cm": 168.0,
+            "objetivo": "perder_peso",
+            "foto_perfil": "https://i.pravatar.cc/150?img=21",
+        },
+        {
+            "nombre": "Miguel Castro",
+            "email": "miguel@fitness.com",
+            "username": "mcastro",
+            "edad": 40,
+            "peso_kg": 95.0,
+            "altura_cm": 180.0,
+            "objetivo": "perder_peso",
+            "foto_perfil": "https://i.pravatar.cc/150?img=33",
+        },
+        {
+            "nombre": "Valentina Ruiz",
+            "email": "valentina@fitness.com",
+            "username": "vruiz",
+            "edad": 24,
+            "peso_kg": 56.0,
+            "altura_cm": 164.0,
+            "objetivo": "ganar_musculo",
+            "foto_perfil": "https://i.pravatar.cc/150?img=47",
+        },
+        {
+            "nombre": "Andres Navarro",
+            "email": "andres@fitness.com",
+            "username": "anavarro",
+            "edad": 32,
+            "peso_kg": 84.0,
+            "altura_cm": 177.0,
+            "objetivo": "mantenimiento",
+            "foto_perfil": "https://i.pravatar.cc/150?img=55",
+        },
+        {
+            "nombre": "Camila Herrera",
+            "email": "camila@fitness.com",
+            "username": "cherrera",
+            "edad": 29,
+            "peso_kg": 67.0,
+            "altura_cm": 170.0,
+            "objetivo": "resistencia",
+            "foto_perfil": "https://i.pravatar.cc/150?img=62",
+        },
+        
     ]
 
     usuarios = []
@@ -213,6 +264,66 @@ try:
             "imagen_url": "https://images.unsplash.com/photo-1607962837359-5e7e89f86776?w=400",
             "video_url": "https://www.youtube.com/watch?v=LM8XHLYJoYs",
         },
+        {
+            "nombre": "Remo con Barra",
+            "tipo": "fuerza",
+            "grupo_muscular": "espalda",
+            "nivel_dificultad": "intermedio",
+            "descripcion": "Ejercicio compuesto para espalda media y dorsales.",
+            "instrucciones": "Inclinar el torso y llevar la barra hacia el abdomen.",
+            "imagen_url": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400",
+            "video_url": "https://www.youtube.com/watch?v=vT2GjY_Umpw",
+        },
+        {
+            "nombre": "Zancadas",
+            "tipo": "fuerza",
+            "grupo_muscular": "piernas",
+            "nivel_dificultad": "principiante",
+            "descripcion": "Trabajo unilateral para piernas y glúteos.",
+            "instrucciones": "Dar un paso al frente y bajar ambas rodillas.",
+            "imagen_url": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=400",
+            "video_url": "https://www.youtube.com/watch?v=QOVaHwm-Q6U",
+        },
+        {
+            "nombre": "Mountain Climbers",
+            "tipo": "hiit",
+            "grupo_muscular": "core",
+            "nivel_dificultad": "intermedio",
+            "descripcion": "Cardio intenso para core y resistencia.",
+            "instrucciones": "Alternar rodillas al pecho rápidamente.",
+            "imagen_url": "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=400",
+            "video_url": "https://www.youtube.com/watch?v=nmwgirgXLYM",
+        },
+        {
+            "nombre": "Elevaciones Laterales",
+            "tipo": "fuerza",
+            "grupo_muscular": "hombros",
+            "nivel_dificultad": "principiante",
+            "descripcion": "Aislamiento para deltoides laterales.",
+            "instrucciones": "Elevar mancuernas hasta la altura de los hombros.",
+            "imagen_url": "https://images.unsplash.com/photo-1581009137042-c552e485697a?w=400",
+            "video_url": "https://www.youtube.com/watch?v=3VcKaXpzqRo",
+        },
+        {
+            "nombre": "Abdominales Bicicleta",
+            "tipo": "funcional",
+            "grupo_muscular": "core",
+            "nivel_dificultad": "principiante",
+            "descripcion": "Ejercicio dinámico para abdominales.",
+            "instrucciones": "Alternar codo y rodilla opuesta.",
+            "imagen_url": "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=400",
+            "video_url": "https://www.youtube.com/watch?v=9FGilxCbdz8",
+        },
+        {
+            "nombre": "Saltar Cuerda",
+            "tipo": "cardio",
+            "grupo_muscular": "cardio",
+            "nivel_dificultad": "principiante",
+            "descripcion": "Ejercicio cardiovascular de alta eficiencia.",
+            "instrucciones": "Mantener saltos constantes y controlados.",
+            "imagen_url": "https://images.unsplash.com/photo-1518611012118-fb2f7b7d3f1f?w=400",
+            "video_url": "https://www.youtube.com/watch?v=1BZM3lZxj3I",
+        },
     ]
 
     ejercicios = []
@@ -272,14 +383,55 @@ try:
          "series": 4, "repeticiones": 12, "peso_kg": 20.0, "fecha_programada": hoy + timedelta(days=1), "completada": False},
         {"nombre": "Pecho Volumen", "usuario_id": usuarios[4].id, "ejercicio_id": ejercicios[0].id,
          "series": 5, "repeticiones": 12, "peso_kg": 60.0, "fecha_programada": hoy + timedelta(days=3), "completada": False},
+        # Sofia — tonificar
+        {"nombre": "Core y Glúteos", "usuario_id": usuarios[5].id, "ejercicio_id": ejercicios[11].id,
+        "series": 4, "repeticiones": 12, "peso_kg": 40.0, "fecha_programada": hoy + timedelta(days=1), "completada": False},
+
+        {"nombre": "Cardio Moderado", "usuario_id": usuarios[5].id, "ejercicio_id": ejercicios[8].id,
+        "duracion_min": 40, "fecha_programada": hoy + timedelta(days=3), "completada": False},
+
+        # Miguel — perder peso
+        {"nombre": "Cardio Quema Grasa", "usuario_id": usuarios[6].id, "ejercicio_id": ejercicios[8].id,
+        "duracion_min": 50, "fecha_programada": hoy + timedelta(days=1), "completada": False},
+
+        {"nombre": "Circuito HIIT", "usuario_id": usuarios[6].id, "ejercicio_id": ejercicios[9].id,
+        "series": 6, "repeticiones": 12, "fecha_programada": hoy + timedelta(days=2), "completada": False},
+
+        # Valentina — ganar músculo
+        {"nombre": "Piernas Hipertrofia", "usuario_id": usuarios[7].id, "ejercicio_id": ejercicios[1].id,
+        "series": 4, "repeticiones": 12, "peso_kg": 70.0, "fecha_programada": hoy + timedelta(days=1), "completada": False},
+
+        {"nombre": "Espalda Volumen", "usuario_id": usuarios[7].id, "ejercicio_id": ejercicios[3].id,
+        "series": 4, "repeticiones": 10, "peso_kg": 0.0, "fecha_programada": hoy + timedelta(days=3), "completada": False},
+
+        # Andres — mantenimiento
+        {"nombre": "Full Body Ligero", "usuario_id": usuarios[8].id, "ejercicio_id": ejercicios[2].id,
+        "series": 3, "repeticiones": 10, "peso_kg": 100.0, "fecha_programada": hoy + timedelta(days=2), "completada": False},
+
+        # Camila — resistencia
+        {"nombre": "Running Largo", "usuario_id": usuarios[9].id, "ejercicio_id": ejercicios[8].id,
+        "duracion_min": 75, "fecha_programada": hoy + timedelta(days=1), "completada": False},
+
+        {"nombre": "Flexibilidad Avanzada", "usuario_id": usuarios[9].id, "ejercicio_id": ejercicios[10].id,
+        "duracion_min": 35, "fecha_programada": hoy + timedelta(days=4), "completada": False},
     ]
 
     rutinas_creadas = 0
-    for data in rutinas_data:
-        r = Rutina(**data)
-        db.add(r)
-        rutinas_creadas += 1
 
+    for data in rutinas_data:
+        existente = db.query(Rutina).filter(
+            Rutina.usuario_id == data["usuario_id"],
+            Rutina.ejercicio_id == data["ejercicio_id"],
+            Rutina.fecha_programada == data["fecha_programada"],
+            Rutina.nombre == data["nombre"]
+        ).first()
+
+        if existente:
+            print(f"   ⚠️  Rutina '{data['nombre']}' ya existe, se omite.")
+        else:
+            r = Rutina(**data)
+            db.add(r)
+            rutinas_creadas += 1
     db.flush()
     print(f"✅ Rutinas: {rutinas_creadas}")
 
@@ -353,6 +505,183 @@ try:
             )
             db.add(rp)
             registros_creados += 1
+    
+    # Ana — resistencia (peso estable, mejora energía)
+    ana_pesos = [58.0, 58.1, 57.9, 58.0, 57.8, 57.9, 58.0]
+    for i, peso in enumerate(ana_pesos):
+        fecha = hoy - timedelta(days=6-i)
+        existente = db.query(RegistroProgreso).filter(
+            RegistroProgreso.usuario_id == usuarios[3].id,
+            RegistroProgreso.fecha == fecha
+        ).first()
+
+        if not existente:
+            rp = RegistroProgreso(
+                usuario_id=usuarios[3].id,
+                fecha=fecha,
+                peso_kg=peso,
+                calorias_consumidas=2100,
+                proteinas_g=120.0,
+                carbohidratos_g=260.0,
+                grasas_g=60.0,
+                nivel_energia=8 + (i % 2),
+                notas="Sesión de cardio prolongada" if i % 3 == 0 else None,
+            )
+            db.add(rp)
+            registros_creados += 1
+
+
+    # Juan — ganancia muscular
+    juan_pesos = [69.5, 69.8, 70.0, 70.1, 70.3, 70.4, 70.6]
+    for i, peso in enumerate(juan_pesos):
+        fecha = hoy - timedelta(days=6-i)
+        existente = db.query(RegistroProgreso).filter(
+            RegistroProgreso.usuario_id == usuarios[4].id,
+            RegistroProgreso.fecha == fecha
+        ).first()
+
+        if not existente:
+            rp = RegistroProgreso(
+                usuario_id=usuarios[4].id,
+                fecha=fecha,
+                peso_kg=peso,
+                calorias_consumidas=3000 + (i * 15),
+                proteinas_g=190.0,
+                carbohidratos_g=350.0,
+                grasas_g=75.0,
+                nivel_energia=8,
+                notas="Progresando en cargas" if i % 2 == 0 else None,
+            )
+            db.add(rp)
+            registros_creados += 1
+
+
+    # Sofia — tonificación
+    sofia_pesos = [61.0, 60.9, 60.8, 60.9, 60.7, 60.8, 60.7]
+    for i, peso in enumerate(sofia_pesos):
+        fecha = hoy - timedelta(days=6-i)
+        existente = db.query(RegistroProgreso).filter(
+            RegistroProgreso.usuario_id == usuarios[5].id,
+            RegistroProgreso.fecha == fecha
+        ).first()
+
+        if not existente:
+            rp = RegistroProgreso(
+                usuario_id=usuarios[5].id,
+                fecha=fecha,
+                peso_kg=peso,
+                calorias_consumidas=1900,
+                proteinas_g=125.0,
+                carbohidratos_g=200.0,
+                grasas_g=55.0,
+                nivel_energia=7 + (i % 2),
+                notas="Entrenamiento funcional" if i % 3 == 0 else None,
+            )
+            db.add(rp)
+            registros_creados += 1
+
+
+    # Miguel — pérdida de peso
+    miguel_pesos = [95.0, 94.8, 94.6, 94.5, 94.3, 94.2, 94.0]
+    for i, peso in enumerate(miguel_pesos):
+        fecha = hoy - timedelta(days=6-i)
+        existente = db.query(RegistroProgreso).filter(
+            RegistroProgreso.usuario_id == usuarios[6].id,
+            RegistroProgreso.fecha == fecha
+        ).first()
+
+        if not existente:
+            rp = RegistroProgreso(
+                usuario_id=usuarios[6].id,
+                fecha=fecha,
+                peso_kg=peso,
+                calorias_consumidas=1800 - (i * 10),
+                proteinas_g=170.0,
+                carbohidratos_g=170.0,
+                grasas_g=50.0,
+                nivel_energia=6 + (i % 3),
+                notas="Déficit calórico controlado" if i % 2 == 0 else None,
+            )
+            db.add(rp)
+            registros_creados += 1
+
+
+    # Valentina — ganancia muscular
+    valentina_pesos = [55.8, 56.0, 56.2, 56.3, 56.5, 56.6, 56.8]
+    for i, peso in enumerate(valentina_pesos):
+        fecha = hoy - timedelta(days=6-i)
+        existente = db.query(RegistroProgreso).filter(
+            RegistroProgreso.usuario_id == usuarios[7].id,
+            RegistroProgreso.fecha == fecha
+        ).first()
+
+        if not existente:
+            rp = RegistroProgreso(
+                usuario_id=usuarios[7].id,
+                fecha=fecha,
+                peso_kg=peso,
+                calorias_consumidas=2600 + (i * 20),
+                proteinas_g=150.0,
+                carbohidratos_g=300.0,
+                grasas_g=65.0,
+                nivel_energia=8,
+                notas="Hipertrofia enfocada en piernas" if i % 3 == 0 else None,
+            )
+            db.add(rp)
+            registros_creados += 1
+
+
+    # Andres — mantenimiento
+    andres_pesos = [84.0, 84.1, 84.0, 83.9, 84.1, 84.0, 84.0]
+    for i, peso in enumerate(andres_pesos):
+        fecha = hoy - timedelta(days=6-i)
+        existente = db.query(RegistroProgreso).filter(
+            RegistroProgreso.usuario_id == usuarios[8].id,
+            RegistroProgreso.fecha == fecha
+        ).first()
+
+        if not existente:
+            rp = RegistroProgreso(
+                usuario_id=usuarios[8].id,
+                fecha=fecha,
+                peso_kg=peso,
+                calorias_consumidas=2400,
+                proteinas_g=160.0,
+                carbohidratos_g=270.0,
+                grasas_g=75.0,
+                nivel_energia=8,
+            )
+            db.add(rp)
+            registros_creados += 1
+
+
+    # Camila — resistencia
+    camila_pesos = [67.0, 66.9, 67.1, 67.0, 66.8, 66.9, 67.0]
+    for i, peso in enumerate(camila_pesos):
+        fecha = hoy - timedelta(days=6-i)
+        existente = db.query(RegistroProgreso).filter(
+            RegistroProgreso.usuario_id == usuarios[9].id,
+            RegistroProgreso.fecha == fecha
+        ).first()
+
+        if not existente:
+            rp = RegistroProgreso(
+                usuario_id=usuarios[9].id,
+                fecha=fecha,
+                peso_kg=peso,
+                calorias_consumidas=2200,
+                proteinas_g=130.0,
+                carbohidratos_g=290.0,
+                grasas_g=60.0,
+                nivel_energia=8 + (i % 2),
+                notas="Entrenamiento aeróbico" if i % 3 == 0 else None,
+            )
+            db.add(rp)
+            registros_creados += 1
+
+
+
+
 
     db.commit()
     print(f"✅ Registros de progreso: {registros_creados}")
@@ -360,10 +689,10 @@ try:
     print("\n" + "="*50)
     print("🎉 Seed completado exitosamente")
     print("="*50)
-    print(f"   👤 Usuarios:            {db.query(Usuario).count()}")
-    print(f"   🏋️  Ejercicios:          {db.query(Ejercicio).count()}")
-    print(f"   📋 Rutinas:             {db.query(Rutina).count()}")
-    print(f"   📊 Registros progreso:  {db.query(RegistroProgreso).count()}")
+    print(f"   Usuarios:            {db.query(Usuario).count()}")
+    print(f"   Ejercicios:          {db.query(Ejercicio).count()}")
+    print(f"   Rutinas:             {db.query(Rutina).count()}")
+    print(f"   Registros progreso:  {db.query(RegistroProgreso).count()}")
     print("\nUsuarios de prueba:")
     for u in db.query(Usuario).all():
         print(f"   • @{u.username} — {u.objetivo}")
