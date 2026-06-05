@@ -83,6 +83,7 @@ hecho en [https://lucid.com](https://lucid.app/)
 <img width="2212" height="1046" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/7b89d065-3206-4d84-858f-89cadfc4e815" />
 hecho en https://mermaid.live/
 
+El navegador solicita /usuarios, FastAPI delega la consulta al servicio, el servicio obtiene los datos desde PostgreSQL mediante SQLAlchemy y finalmente FastAPI genera la página usuarios.html para mostrarla al usuario.
 
 ## Diagrama de despliegue
 <img width="2734" height="817" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/1de18785-b311-45bd-be61-6c5b9a7c7566" />
